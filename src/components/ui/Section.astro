@@ -1,0 +1,49 @@
+---
+/**
+ * Section shell.
+ *
+ * Owns the band rhythm so that no two adjacent sections ever land on the same
+ * background: paper → surface → limestone → paper, with forest reserved for
+ * the closing call to action and the footer.
+ */
+interface Props {
+  id: string;
+  band: 'paper' | 'surface' | 'limestone' | 'forest';
+  labelledby?: string;
+  width?: 'content' | 'wide' | 'bleed';
+  tight?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  band,
+  labelledby,
+  width = 'content',
+  tight = false,
+  class: className = '',
+} = Astro.props;
+
+const bands = {
+  paper: 'bg-paper text-ink',
+  surface: 'bg-surface text-ink',
+  limestone: 'bg-limestone text-ink',
+  forest: 'bg-forest text-surface',
+} as const;
+
+const widths = {
+  content: 'mx-auto max-w-content px-gutter',
+  wide: 'mx-auto max-w-wide px-gutter',
+  bleed: '',
+} as const;
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledby}
+  class:list={[bands[band], tight ? 'py-section-tight' : 'py-section', className]}
+>
+  <div class={widths[width]}>
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,30 @@
+---
+/**
+ * Availability and eligibility pills.
+ *
+ * `brick` is the only signal colour on the site and is rationed — it appears
+ * here, on the land segment of the dimension line, and in error states.
+ */
+interface Props {
+  tone?: 'brick' | 'forest' | 'paper';
+  class?: string;
+}
+
+const { tone = 'paper', class: className = '' } = Astro.props;
+
+const tones = {
+  brick: 'bg-brick text-white',
+  forest: 'bg-forest text-white',
+  paper: 'bg-paper text-ink border border-rule',
+} as const;
+---
+
+<span
+  class:list={[
+    'num inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-eyebrow font-medium uppercase tracking-[0.08em]',
+    tones[tone],
+    className,
+  ]}
+>
+  <slot />
+</span>

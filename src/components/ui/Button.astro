@@ -1,0 +1,73 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+/**
+ * One button component, three variants, two tones.
+ *
+ * `tone="dark"` is for buttons sitting on --color-forest or over the hero
+ * scrim, where the primary fill inverts to white on forest text.
+ */
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: 'primary' | 'secondary' | 'tertiary';
+  tone?: 'light' | 'dark';
+  icon?: IconName;
+  full?: boolean;
+  class?: string;
+  'aria-label'?: string;
+  'data-nav-close'?: boolean;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  tone = 'light',
+  icon,
+  full = false,
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const base =
+  'group inline-flex items-center justify-center gap-2 font-semibold tracking-[0.01em] ' +
+  'transition-[background-color,color,border-color,transform] duration-base ease-out ' +
+  'min-h-[44px] no-underline';
+
+const solid = 'h-12 md:h-[52px] px-7 rounded-md text-body';
+
+const variants = {
+  primary: {
+    light: `${solid} bg-forest text-surface hover:bg-forest-lift hover:-translate-y-px active:translate-y-0`,
+    dark: `${solid} bg-surface text-forest hover:bg-limestone hover:-translate-y-px active:translate-y-0`,
+  },
+  secondary: {
+    light: `${solid} border border-ink text-ink hover:bg-ink hover:text-paper`,
+    dark: `${solid} border border-white/35 text-surface hover:bg-surface hover:text-forest`,
+  },
+  tertiary: {
+    light: 'text-ink underline underline-offset-4 decoration-1 hover:decoration-2 py-2',
+    dark: 'text-surface underline underline-offset-4 decoration-1 hover:decoration-2 py-2',
+  },
+} as const;
+
+const classes = [base, variants[variant][tone], full ? 'w-full' : '', className]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class={classes} href={href} type={href ? undefined : type} {...rest}>
+  <slot />
+  {
+    icon && (
+      <Icon
+        name={icon}
+        size={18}
+        class="shrink-0 transition-transform duration-base ease-out group-hover:translate-x-[3px]"
+      />
+    )
+  }
+</Tag>

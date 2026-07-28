@@ -1,0 +1,24 @@
+---
+/**
+ * The small uppercase label that sits above a section heading. It is a
+ * paragraph, never a heading tag — heading levels are structure, not size.
+ */
+interface Props {
+  tone?: 'light' | 'dark';
+  class?: string;
+  id?: string;
+}
+
+const { tone = 'light', class: className = '', id } = Astro.props;
+---
+
+<p
+  id={id}
+  class:list={[
+    'text-eyebrow font-semibold uppercase tracking-[0.14em]',
+    tone === 'dark' ? 'text-limestone' : 'text-ink-55',
+    className,
+  ]}
+>
+  <slot />
+</p>

@@ -1,0 +1,50 @@
+---
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import { site } from '../../lib/site';
+---
+
+<section
+  id="get-a-price"
+  class="bg-forest text-surface"
+  aria-labelledby="closing-heading"
+>
+  <div class="mx-auto max-w-content px-gutter py-section">
+    <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-16">
+      <div class="lg:col-span-7">
+        <h2 id="closing-heading" class="max-w-[20ch] text-h2">
+          Tell us your block. We'll tell you the price.
+        </h2>
+        <p class="mt-5 max-w-prose text-lead text-white/75">
+          Not an estimate, not a "from" figure — a fixed price with the site costs in it.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3 lg:col-span-5 lg:justify-end">
+        <Button href="/build-a-quote/" tone="dark" icon="arrow-right"
+          >Build a quote</Button
+        >
+        <Button href="/display-homes/" variant="secondary" tone="dark">
+          Visit the display
+        </Button>
+        <a class="closing-phone num" href={site.phoneHref}>
+          <Icon name="phone" size={18} />
+          {site.phone}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .closing-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding-inline: 0.5rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

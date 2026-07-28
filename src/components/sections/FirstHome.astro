@@ -1,0 +1,124 @@
+---
+import { getCollection } from 'astro:content';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Button from '../ui/Button.astro';
+import {
+  FHOG_CAP,
+  STAMP_DUTY_EXEMPT_CAP,
+  formatAud,
+  isFhogEligible,
+  isStampDutyExempt,
+  packageFromPrice,
+} from '../../lib/format';
+
+/**
+ * Eligibility is computed from the inventory, not asserted in prose — the
+ * counts move when the data moves.
+ */
+const packages = (await getCollection('packages')).map((entry) => entry.data);
+const fhogCount = packages.filter((pkg) => isFhogEligible(packageFromPrice(pkg))).length;
+const exemptCount = packages.filter((pkg) =>
+  isStampDutyExempt(packageFromPrice(pkg)),
+).length;
+---
+
+<Section id="first-home-buyers" band="paper" labelledby="fhb-heading" tight>
+  <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-7">
+      <Eyebrow>Victorian first home buyers</Eyebrow>
+      <h2 id="fhb-heading" class="mt-4 text-h2">
+        Most of our packages sit under the grant threshold. Several sit under the stamp
+        duty one.
+      </h2>
+
+      <div class="mt-6 flex max-w-prose flex-col gap-4 text-body text-ink-70">
+        <p>
+          If this is your first home, Victoria gives you a{' '}
+          <strong class="num font-semibold text-ink"
+            >$10,000 First Home Owner Grant</strong
+          >{' '}
+          on a newly built home valued at{' '}
+          <span class="num">{formatAud(FHOG_CAP)}</span> or less — and{' '}
+          <strong class="font-semibold text-ink">no stamp duty at all</strong> up to{' '}
+          <span class="num">{formatAud(STAMP_DUTY_EXEMPT_CAP)}</span>, with a sliding
+          concession to <span class="num">{formatAud(FHOG_CAP)}</span>.
+        </p>
+        <p>
+          Almost every package we list qualifies for the grant. We flag the eligibility on
+          each one, so you can see it before you enquire rather than after.
+        </p>
+      </div>
+
+      <Button class="mt-8" href="/house-and-land/?price=0-600000" icon="arrow-right">
+        See packages under <span class="num">$600,000</span>
+      </Button>
+    </div>
+
+    <div class="lg:col-span-5">
+      <dl class="eligibility">
+        <div>
+          <dt>Qualify for the $10,000 grant</dt>
+          <dd class="num">
+            {fhogCount}<span class="eligibility-of">of {packages.length}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Pay no stamp duty at all</dt>
+          <dd class="num">
+            {exemptCount}<span class="eligibility-of">of {packages.length}</span>
+          </dd>
+        </div>
+      </dl>
+
+      <p class="mt-5 text-small text-ink-55">
+        Indicative only. Eligibility depends on your circumstances and is assessed by the
+        State Revenue Office. Check sro.vic.gov.au or speak to your conveyancer.
+      </p>
+    </div>
+  </div>
+</Section>
+
+<style>
+  .eligibility {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    background-color: var(--color-rule);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  @media (min-width: 480px) {
+    .eligibility {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .eligibility > div {
+    padding: 1.5rem;
+    background-color: var(--color-surface);
+  }
+
+  .eligibility dt {
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+  }
+
+  .eligibility dd {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+    font-size: 2.25rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .eligibility-of {
+    font-size: var(--text-small);
+    font-weight: 400;
+    color: var(--color-ink-55);
+  }
+</style>

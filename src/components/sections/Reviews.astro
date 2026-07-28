@@ -1,0 +1,168 @@
+---
+import { getCollection } from 'astro:content';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
+import { site } from '../../lib/site';
+
+/**
+ * Social proof without invented faces.
+ *
+ * No stock headshots anywhere near this section — on a page about trust, a
+ * fabricated portrait is the one substitution that costs more than it gains.
+ * Reviewers are represented by their initials, set typographically.
+ *
+ * The 4.8★ rating is real but is not published as AggregateRating schema:
+ * every review record carries `publishApproved: false` until the client
+ * authorises it in writing.
+ */
+const reviews = (await getCollection('reviews'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+const initials = (author: string) =>
+  author
+    .replace(/[^A-Za-z& ]/g, '')
+    .split(/\s+|&/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? '')
+    .join('');
+---
+
+<Section id="reviews" band="limestone" labelledby="reviews-heading">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div class="max-w-prose">
+      <Eyebrow class="num">
+        {`${site.rating.value} out of 5 · ${site.rating.count} Google reviews`}
+      </Eyebrow>
+      <h2 id="reviews-heading" class="mt-4 text-h2">
+        The same three things come up in nearly every review.
+      </h2>
+      <p class="mt-5 text-lead text-ink-70">
+        No sales pressure. A fast build. And being able to actually reach the person
+        managing your job.
+      </p>
+    </div>
+
+    <a class="section-link" href={site.googleReviewsHref} rel="noopener">
+      Read all <span class="num">{site.rating.count}</span> reviews on Google
+      <Icon name="arrow-up-right" size={18} />
+    </a>
+  </div>
+
+  <ul class="reviews" data-reveal-group>
+    {
+      reviews.map((review) => (
+        <li class="review" data-reveal>
+          <p class="review-stars" aria-label={`${site.rating.value} out of 5`}>
+            <span aria-hidden="true">★★★★★</span>
+          </p>
+          <blockquote class="review-quote">
+            <p>{review.data.quote}</p>
+          </blockquote>
+          <div class="review-foot">
+            <span class="review-avatar num" aria-hidden="true">
+              {initials(review.data.author)}
+            </span>
+            <span>
+              <span class="block text-small font-semibold">{review.data.author}</span>
+              <span class="block text-small text-ink-55">
+                {review.data.context} · {review.data.source}
+              </span>
+            </span>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="mt-8 max-w-prose text-small text-ink-55">
+    Quotes are condensed from public Google reviews. Wording, attribution and permission
+    to publish are being confirmed with the client before launch.
+  </p>
+</Section>
+
+<style>
+  .reviews {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 768px) {
+    .reviews {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .review {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  }
+
+  .review-stars {
+    color: var(--color-brick);
+    font-size: var(--text-small);
+    letter-spacing: 0.15em;
+  }
+
+  .review-quote {
+    flex: 1;
+    margin: 1rem 0 0;
+  }
+
+  .review-quote p {
+    font-size: var(--text-body);
+    line-height: 1.6;
+  }
+
+  .review-quote p::before {
+    content: '“';
+  }
+
+  .review-quote p::after {
+    content: '”';
+  }
+
+  .review-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .review-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: none;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-paper);
+    font-size: var(--text-small);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

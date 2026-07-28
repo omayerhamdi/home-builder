@@ -1,0 +1,94 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import { footerNav, legalNav, primaryNav, site } from '../lib/site';
+
+/**
+ * Route stubs.
+ *
+ * This phase of the build ships the homepage. Every other destination the
+ * homepage links to still resolves to a real page with a real explanation
+ * rather than a 404 — the navigation can be walked end to end in front of the
+ * client without hitting a dead end.
+ *
+ * The path list is derived from the navigation and the data, so a new link
+ * cannot be added without a page appearing behind it.
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const [designs, packages] = await Promise.all([
+    getCollection('designs'),
+    getCollection('packages'),
+  ]);
+
+  const fromNav = [
+    ...primaryNav.flatMap((item) => [
+      item.href,
+      ...(item.panel?.columns.flatMap((column) => column.links.map((l) => l.href)) ?? []),
+      ...(item.panel ? [item.panel.promo.cta.href] : []),
+    ]),
+    ...footerNav.flatMap((column) => column.links.map((l) => l.href)),
+    ...legalNav.map((l) => l.href),
+    '/build-a-quote/',
+    '/first-home-buyers/',
+    '/display-homes/',
+    '/contact/',
+    '/gallery/',
+  ];
+
+  const routes = new Set<string>();
+  for (const href of fromNav) {
+    const path = href.split('?')[0]!.split('#')[0]!;
+    if (path && path !== '/') routes.add(path);
+  }
+  for (const design of designs) routes.add(`/home-designs/${design.data.id}/`);
+  for (const pkg of packages) routes.add(`/house-and-land/${pkg.data.id}/`);
+
+  return [...routes].map((route) => ({
+    params: { slug: route.replace(/^\/|\/$/g, '') },
+  }));
+};
+
+const { slug } = Astro.params;
+
+/** Human label for the requested route, used in the heading. */
+const label = (slug ?? '')
+  .split('/')
+  .pop()!
+  .replace(/-/g, ' ')
+  .replace(/^./, (c) => c.toUpperCase());
+---
+
+<BaseLayout
+  title={`${label} | DBN Homes`}
+  description="Fixed price, full turnkey homes across Melbourne's western growth corridor. This section is scheduled for the next stage of the build."
+>
+  <section class="bg-paper py-section" aria-labelledby="stub-heading">
+    <div class="mx-auto max-w-content px-gutter">
+      <Eyebrow>Next stage of the build</Eyebrow>
+      <h1 id="stub-heading" class="mt-4 max-w-[20ch] text-h1">{label}</h1>
+
+      <div class="mt-6 flex max-w-prose flex-col gap-4 text-lead text-ink-70">
+        <p>
+          This prototype covers the homepage in full. The House &amp; Land listing, the
+          single package page and the rest of the site are scoped, designed and scheduled
+          — they are not built yet, so this route exists to keep the navigation walkable
+          rather than to hold placeholder content.
+        </p>
+        <p>
+          Everything you can already see — the design tokens, the components, the data
+          layer and the price breakdown — is what these pages will be assembled from.
+        </p>
+      </div>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <Button href="/" icon="arrow-right">Back to the homepage</Button>
+        <Button href={site.phoneHref} variant="secondary">
+          Call <span class="num">{site.phone}</span>
+        </Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+---
+
+<BaseLayout
+  title="That page has moved | DBN Homes"
+  description="We reorganised the site. Try our home designs or the current house and land packages."
+>
+  <section class="bg-paper py-section" aria-labelledby="notfound-heading">
+    <div class="mx-auto max-w-content px-gutter">
+      <Eyebrow><span class="num">404</span></Eyebrow>
+      <h1 id="notfound-heading" class="mt-4 text-h1">That page has moved.</h1>
+      <p class="mt-6 max-w-prose text-lead text-ink-70">
+        We reorganised the site. Try our home designs or the current house and land
+        packages.
+      </p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <Button href="/home-designs/" icon="arrow-right">Home designs</Button>
+        <Button href="/house-and-land/" variant="secondary"
+          >House &amp; land packages</Button
+        >
+      </div>
+    </div>
+  </section>
+</BaseLayout>

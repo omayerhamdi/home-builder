@@ -1,0 +1,320 @@
+---
+import { formatAud } from '../../lib/format';
+import Icon from '../ui/Icon.astro';
+
+/**
+ * The Dimension Line — the signature element.
+ *
+ * It is the architectural dimension annotation (a hairline rule with vertical
+ * tick terminators, used to mark measurements on a floor plan) applied to
+ * money instead of millimetres. Every competitor shows a number with an
+ * asterisk; this shows the number and opens it up.
+ *
+ * Geometry is real SVG, so the ticks stay hairlines at any width. Labels are
+ * HTML so they stay at their true 12px in the mono face rather than scaling
+ * with the drawing. The whole visual is hidden from assistive technology and
+ * the same breakdown is exposed as a definition list underneath — one clear
+ * reading rather than two overlapping ones.
+ */
+
+export interface Segment {
+  label: string;
+  amount: number;
+  /** Ticked in the expanded variant — "already in the number". */
+  included?: boolean;
+  /** The land component is the one segment drawn in the signal colour. */
+  land?: boolean;
+}
+
+interface Props {
+  variant: 'compact' | 'expanded';
+  segments: Segment[];
+  total: number;
+  totalLabel?: string;
+  /** Sentence read by screen readers before the breakdown. */
+  caption?: string;
+  class?: string;
+}
+
+const {
+  variant,
+  segments,
+  total,
+  totalLabel = 'Nothing more to pay',
+  caption,
+  class: className = '',
+} = Astro.props;
+
+const sum = segments.reduce((n, s) => n + s.amount, 0);
+const share = (amount: number) => (amount / sum) * 100;
+
+/* The expanded variant scales each row against the largest segment so the
+   smallest inclusions stay legible rather than collapsing to a few pixels. */
+const largest = Math.max(...segments.map((s) => s.amount));
+const rowShare = (amount: number) => Math.max((amount / largest) * 100, 6);
+---
+
+<figure class:list={['dl m-0', className]} data-dimension-line>
+  {
+    variant === 'compact' ? (
+      <div>
+        <svg
+          class="dl-svg block w-full"
+          height="18"
+          viewBox="0 0 1000 18"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          {/* the rule, drawn left to right */}
+          <line
+            class="dl-rule"
+            x1="0"
+            y1="9"
+            x2="1000"
+            y2="9"
+            pathLength="1"
+            vector-effect="non-scaling-stroke"
+          />
+          {/* terminators, plus one divider per segment boundary */}
+          {segments.map((segment, i) => {
+            const start = segments.slice(0, i).reduce((n, s) => n + share(s.amount), 0);
+            return (
+              <line
+                class:list={['dl-tick', segment.land && 'is-land']}
+                x1={start * 10}
+                y1="4"
+                x2={start * 10}
+                y2="14"
+                vector-effect="non-scaling-stroke"
+                style={`--dl-delay:${120 + i * 90}ms`}
+              />
+            );
+          })}
+          <line
+            class="dl-tick"
+            x1="1000"
+            y1="4"
+            x2="1000"
+            y2="14"
+            vector-effect="non-scaling-stroke"
+            style={`--dl-delay:${120 + segments.length * 90}ms`}
+          />
+          {/* the land share is redrawn in the signal colour */}
+          {segments.map((segment, i) =>
+            segment.land ? (
+              <line
+                class="dl-rule is-land"
+                x1={segments.slice(0, i).reduce((n, s) => n + share(s.amount), 0) * 10}
+                y1="9"
+                x2={
+                  segments.slice(0, i + 1).reduce((n, s) => n + share(s.amount), 0) * 10
+                }
+                y2="9"
+                pathLength="1"
+                vector-effect="non-scaling-stroke"
+              />
+            ) : null,
+          )}
+        </svg>
+        <div class="mt-2 flex" aria-hidden="true">
+          {segments.map((segment) => (
+            <span
+              class="num truncate px-1 text-center text-[0.75rem] text-ink-70 first:pl-0 last:pr-0"
+              style={`width:${share(segment.amount)}%`}
+            >
+              {segment.label} {formatAud(segment.amount)}
+            </span>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <div class="flex flex-col gap-4">
+        {segments.map((segment, i) => (
+          <div class="dl-row" style={`--dl-delay:${i * 70}ms`}>
+            <div class="flex items-baseline justify-between gap-4" aria-hidden="true">
+              <span class="flex items-center gap-1.5 text-small text-ink-70">
+                {segment.included && (
+                  <Icon name="check" size={14} class="shrink-0 text-forest" />
+                )}
+                {segment.label}
+              </span>
+              <span class="num text-small font-medium text-ink">
+                {formatAud(segment.amount)}
+              </span>
+            </div>
+            <svg
+              class="dl-svg mt-1.5 block"
+              height="14"
+              viewBox="0 0 1000 14"
+              preserveAspectRatio="none"
+              style={`width:${rowShare(segment.amount)}%`}
+              aria-hidden="true"
+              focusable="false"
+            >
+              <line
+                class:list={['dl-rule', segment.land && 'is-land']}
+                x1="0"
+                y1="7"
+                x2="1000"
+                y2="7"
+                pathLength="1"
+                vector-effect="non-scaling-stroke"
+              />
+              <line
+                class:list={['dl-tick', segment.land && 'is-land']}
+                x1="0"
+                y1="3"
+                x2="0"
+                y2="11"
+                vector-effect="non-scaling-stroke"
+              />
+              <line
+                class:list={['dl-tick', segment.land && 'is-land']}
+                x1="1000"
+                y1="3"
+                x2="1000"
+                y2="11"
+                vector-effect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
+        ))}
+
+        <div class="dl-row mt-2 border-t border-rule pt-4" style="--dl-delay:520ms">
+          <div class="flex items-baseline justify-between gap-4" aria-hidden="true">
+            <span class="text-small font-semibold text-ink">{totalLabel}</span>
+            <span class="num text-h3 font-medium text-ink">{formatAud(total)}</span>
+          </div>
+          <svg
+            class="dl-svg mt-2 block w-full"
+            height="14"
+            viewBox="0 0 1000 14"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <line
+              class="dl-rule is-total"
+              x1="0"
+              y1="7"
+              x2="1000"
+              y2="7"
+              pathLength="1"
+              vector-effect="non-scaling-stroke"
+            />
+            <line
+              class="dl-tick is-total"
+              x1="0"
+              y1="1"
+              x2="0"
+              y2="13"
+              vector-effect="non-scaling-stroke"
+            />
+            <line
+              class="dl-tick is-total"
+              x1="1000"
+              y1="1"
+              x2="1000"
+              y2="13"
+              vector-effect="non-scaling-stroke"
+            />
+          </svg>
+        </div>
+      </div>
+    )
+  }
+
+  <dl class="sr-only">
+    {caption && <dt>Breakdown</dt>}
+    {caption && <dd>{caption}</dd>}
+    {
+      segments.map((segment) => (
+        <>
+          <dt>
+            {segment.label}
+            {segment.included ? ', included' : ''}
+          </dt>
+          <dd>{formatAud(segment.amount)}</dd>
+        </>
+      ))
+    }
+    <dt>{totalLabel}</dt>
+    <dd>{formatAud(total)}</dd>
+  </dl>
+</figure>
+
+<style>
+  .dl-rule,
+  .dl-tick {
+    stroke: var(--color-forest);
+    stroke-opacity: 0.4;
+    stroke-width: 1;
+  }
+
+  .dl-rule.is-land,
+  .dl-tick.is-land {
+    stroke: var(--color-brick);
+    stroke-opacity: 0.85;
+  }
+
+  .dl-rule.is-total,
+  .dl-tick.is-total {
+    stroke: var(--color-forest);
+    stroke-opacity: 0.85;
+  }
+
+  /* The line draws itself left to right the first time it is scrolled into
+     view. pathLength="1" means the dash maths is resolution-independent.
+     The starting state is gated behind html.js so that with scripting off
+     the breakdown simply renders complete. */
+  :global(html.js) .dl-rule {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset var(--duration-image) var(--ease-out);
+  }
+
+  :global(html.js) .dl-tick {
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+    transition-delay: var(--dl-delay, 0ms);
+  }
+
+  :global(html.js) .dl-row {
+    opacity: 0;
+    transition:
+      opacity var(--duration-enter) var(--ease-out),
+      transform var(--duration-enter) var(--ease-out);
+    transition-delay: var(--dl-delay, 0ms);
+    transform: translateY(8px);
+  }
+
+  .dl.is-drawn .dl-rule {
+    stroke-dashoffset: 0;
+  }
+
+  .dl.is-drawn .dl-tick {
+    opacity: 1;
+  }
+
+  .dl.is-drawn .dl-row {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Reduced motion: render complete immediately, no draw. */
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .dl-rule {
+      stroke-dashoffset: 0;
+    }
+
+    :global(html.js) .dl-tick {
+      opacity: 1;
+    }
+
+    :global(html.js) .dl-row {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "smartspecs",
+    "name": "SmartSpecs",
+    "tagline": "Entry specification",
+    "priceFrom": 194500,
+    "priceFromLabel": "Homes from $194,500",
+    "priceFromSubLabel": "site cost included",
+    "summary": "Everything you need to move in, on a fixed price with the site works already sorted.",
+    "inclusions": [
+      "Fixed site cost up to 400mm and an engineered M-class waffle-pod slab",
+      "7-star energy rating on any standard plan, on any orientation",
+      "3.5kW solar PV system",
+      "Reverse cycle split system",
+      "Continuous flow hot water",
+      "Flexible floorplans across our standard façade range"
+    ],
+    "cta": { "label": "See SmartSpecs designs", "href": "/home-designs/" },
+    "verified": true
+  },
+  {
+    "id": "luxeturnkey",
+    "name": "LuxeTurnkey",
+    "tagline": "Complete specification",
+    "priceFrom": 593800,
+    "priceFromLabel": "Packages from $593,800",
+    "priceFromSubLabel": "house and land, finished",
+    "summary": "Everything in SmartSpecs, plus the finishes and the outside — done, so there's nothing left to organise.",
+    "inheritsFrom": "smartspecs",
+    "inclusions": [
+      "Front, side and rear landscaping, letterbox, clothesline and half-share fencing",
+      "Exposed aggregate driveway, porch and alfresco",
+      "2590mm ceilings throughout",
+      "Brickwork above every window, external door and the garage",
+      "Lithostone benchtops — 40mm square edge to kitchen and island, 20mm to ensuite and bathroom",
+      "900mm upright oven and cooktop, canopy rangehood, stainless steel dishwasher",
+      "Evaporative cooling to all bedrooms and living areas",
+      "Tiled shower bases, semi-frameless screens and niches to both showers"
+    ],
+    "cta": { "label": "See LuxeTurnkey packages", "href": "/house-and-land/" },
+    "verified": true
+  }
+]

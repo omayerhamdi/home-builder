@@ -1,0 +1,74 @@
+[
+  {
+    "id": "aldo",
+    "name": "Aldo Estate",
+    "suburb": "Fraser Rise",
+    "postcode": "3336",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "society-1056",
+    "name": "Society 1056",
+    "suburb": "Fraser Rise",
+    "postcode": "3336",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "botania",
+    "name": "Botania",
+    "suburb": "Fraser Rise",
+    "postcode": "3336",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "monarch",
+    "name": "Monarch Estate",
+    "suburb": "Deanside",
+    "postcode": "3336",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "maplewood",
+    "name": "Maplewood Estate",
+    "suburb": "Melton South",
+    "postcode": "3338",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "riverwalk",
+    "name": "Riverwalk",
+    "suburb": "Werribee",
+    "postcode": "3030",
+    "region": "melbourne-west",
+    "verified": true
+  },
+  {
+    "id": "dream-ballarat",
+    "name": "Dream Ballarat Estate",
+    "suburb": "Sebastopol",
+    "postcode": "3356",
+    "region": "ballarat",
+    "verified": true
+  },
+  {
+    "id": "vespa-grange",
+    "name": "Vespa Grange",
+    "suburb": "Smythes Creek",
+    "postcode": "3351",
+    "region": "ballarat",
+    "verified": true
+  },
+  {
+    "id": "invicta-drive",
+    "name": "Invicta Drive",
+    "suburb": "Smythes Creek",
+    "postcode": "3351",
+    "region": "ballarat",
+    "verified": true
+  }
+]

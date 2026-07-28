@@ -1,0 +1,188 @@
+---
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
+import aerial from '../../assets/img/estates/estate-aerial-frames.jpg';
+import { site } from '../../lib/site';
+
+/**
+ * Where we build.
+ *
+ * This section exists to correct a live misrepresentation: the current site
+ * presents DBN as a west-of-Melbourne builder, when in fact Ballarat is their
+ * single largest concentration. The counts are real.
+ */
+const [regions, packages] = await Promise.all([
+  getCollection('regions'),
+  getCollection('packages'),
+]);
+
+const counts = new Map<string, number>();
+for (const entry of packages) {
+  counts.set(entry.data.region, (counts.get(entry.data.region) ?? 0) + 1);
+}
+
+const grouped = regions
+  .map((region) => ({ ...region.data, count: counts.get(region.data.id) ?? 0 }))
+  .sort((a, b) => b.count - a.count);
+
+const largest = grouped[0]!;
+---
+
+<Section id="where-we-build" band="surface" labelledby="zones-heading">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div class="max-w-prose">
+      <Eyebrow>
+        <span class="num">{site.suburbsTotal}</span> suburbs · <span class="num">6</span> regions
+      </Eyebrow>
+      <h2 id="zones-heading" class="mt-4 text-h2">
+        We build further than most people think.
+      </h2>
+      <p class="mt-5 text-lead text-ink-70">
+        Melbourne's west and north, the south east corridor, Geelong, Ballarat and
+        Gippsland. We've worked these estates for six years — we know the developer
+        guidelines and the ground conditions, which is a large part of why our site costs
+        don't move.
+      </p>
+    </div>
+
+    <a class="section-link" href="/contact/">
+      Check if we build on your block
+      <Icon name="arrow-right" size={18} />
+    </a>
+  </div>
+
+  <ul class="zones" data-reveal-group>
+    {
+      grouped.map((region) => (
+        <li class="zone" data-reveal>
+          <p class="flex items-baseline justify-between gap-3">
+            <span class="text-h3">{region.name}</span>
+            <span class="num shrink-0 text-small text-ink-55">
+              {region.count} packages
+            </span>
+          </p>
+          <p class="mt-2 text-small text-ink-70">{region.blurb}</p>
+          <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1">
+            {region.suburbs.map((suburb, i) => (
+              <li class="text-small text-ink-70">
+                {suburb.name}
+                <span class="num text-ink-55"> {suburb.postcode}</span>
+                {i < region.suburbs.length - 1 && <span aria-hidden="true"> ·</span>}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ul>
+
+  <figure class="zone-map">
+    <Picture
+      src={aerial}
+      alt="Aerial view of a Melbourne growth-corridor estate — completed DBN homes alongside slabs and frames on the next release"
+      formats={['avif']}
+      fallbackFormat="webp"
+      widths={[640, 960, 1280]}
+      sizes="(min-width: 1200px) 1136px, 100vw"
+      quality={54}
+      class="zone-map-image"
+      loading="lazy"
+      decoding="async"
+    />
+
+    <figcaption class="zone-map-card">
+      <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
+        Largest concentration
+      </p>
+      <p class="mt-2 text-h3">{largest.name}</p>
+      <p class="mt-2 text-small text-ink-70">
+        <span class="num">{largest.count}</span> packages across{' '}
+        <span class="num">{largest.suburbs.length}</span> suburbs — more than any other region,
+        and where our lowest entry price sits. The current site does not mention it at all.
+      </p>
+    </figcaption>
+  </figure>
+</Section>
+
+<style>
+  .zones {
+    display: grid;
+    gap: 1px;
+    margin-top: 3rem;
+    padding: 0;
+    list-style: none;
+    background-color: var(--color-rule);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .zones {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .zones {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .zone {
+    padding: 1.5rem;
+    background-color: var(--color-surface);
+  }
+
+  .zone-map {
+    position: relative;
+    margin: 3rem 0 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .zone-map-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .zone-map-card {
+    padding: 1.5rem;
+    background-color: var(--color-limestone);
+  }
+
+  @media (min-width: 768px) {
+    .zone-map-card {
+      position: absolute;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      max-width: 24rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-float);
+    }
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .section-link :global(svg) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .section-link:hover :global(svg) {
+    transform: translateX(3px);
+  }
+</style>

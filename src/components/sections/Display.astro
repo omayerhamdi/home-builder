@@ -1,0 +1,104 @@
+---
+import { Picture } from 'astro:assets';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import display from '../../assets/img/estates/display-home-dusk.jpg';
+import { site } from '../../lib/site';
+---
+
+<section id="display" class="relative bg-ink" aria-labelledby="display-heading">
+  <Picture
+    src={display}
+    alt="A single-storey display home at dusk, warm light through the front windows and the driveway and landscaping complete"
+    formats={['avif']}
+    fallbackFormat="webp"
+    widths={[768, 1200, 1600]}
+    sizes="100vw"
+    quality={54}
+    pictureAttributes={{ class: 'display-picture' }}
+    class="display-image"
+    loading="lazy"
+    decoding="async"
+  />
+
+  <div class="display-inner">
+    <div class="mx-auto max-w-content px-gutter">
+      <div class="display-card">
+        <Eyebrow>Open 7 days, 11am–5pm</Eyebrow>
+        <h2 id="display-heading" class="mt-4 text-h2">
+          Walk through one before you commit to one.
+        </h2>
+        <p class="mt-5 max-w-prose text-lead text-ink-70">
+          Our display is on Sinclairs Road at Monarch, Fraser Rise. No appointment, no
+          pressure — Shane or Billy will be there, and you can ask them what a package
+          actually costs without being handed a brochure and a follow-up call.
+        </p>
+
+        <address class="display-address">
+          <p class="flex items-start gap-2.5">
+            <Icon name="map-pin" size={18} class="mt-0.5 shrink-0 text-forest" />
+            <span class="num">{site.display.fullAddress}</span>
+          </p>
+          <p class="flex items-start gap-2.5">
+            <Icon name="clock" size={18} class="mt-0.5 shrink-0 text-forest" />
+            <span>{site.display.hours}</span>
+          </p>
+          <p class="flex items-start gap-2.5">
+            <Icon name="phone" size={18} class="mt-0.5 shrink-0 text-forest" />
+            <a class="num" href={site.phoneHref}>{site.phone}</a>
+          </p>
+        </address>
+
+        <div class="mt-7 flex flex-wrap gap-3">
+          <Button href={site.display.directionsHref} icon="arrow-up-right">
+            Get directions
+          </Button>
+          <Button href="/display-homes/" variant="secondary">Take the 3D tour</Button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .display-picture {
+    position: absolute;
+    inset: 0;
+  }
+
+  .display-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .display-inner {
+    position: relative;
+    padding-block: var(--spacing-section);
+  }
+
+  .display-card {
+    max-width: 40rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-float);
+  }
+
+  .display-address {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-rule);
+    font-style: normal;
+    font-size: var(--text-small);
+  }
+
+  .display-address a {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

@@ -1,0 +1,264 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../ui/Icon.astro';
+import Pill from '../ui/Pill.astro';
+import DimensionLine from '../signature/DimensionLine.astro';
+import { facadeImage } from '../../lib/images';
+import {
+  formatAud,
+  formatLand,
+  isFhogEligible,
+  isStampDutyExempt,
+  packageFromPrice,
+  specLine,
+} from '../../lib/format';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  pkg: CollectionEntry<'packages'>['data'];
+  designName: string;
+  estateName: string | null;
+  /** Server-rendered filter state, so nothing flashes before the script runs. */
+  hidden?: boolean;
+}
+
+const { pkg, designName, estateName, hidden } = Astro.props;
+
+const from = packageFromPrice(pkg);
+const stampDutyExempt = isStampDutyExempt(from);
+const fhog = isFhogEligible(from);
+
+/* The compact dimension line only appears where the land component is a
+   published figure. Where it is not, the card shows the price alone rather
+   than a split we cannot stand behind. */
+const buildPrice = pkg.landPrice ? from - pkg.landPrice : null;
+
+/* Assembled here rather than in the template so the separators can never be
+   lost to whitespace collapsing. */
+const specRow = [
+  specLine(pkg.bedrooms, pkg.bathrooms, pkg.cars),
+  `${formatLand(pkg.landSizeM2)} land`,
+  `${pkg.frontageM}m frontage`,
+].join(' · ');
+
+const location = [estateName, `${pkg.suburb} ${pkg.postcode}`]
+  .filter(Boolean)
+  .join(' · ');
+---
+
+<article
+  class="pkg"
+  data-filter-item
+  data-region={pkg.region}
+  data-reveal
+  hidden={hidden}
+>
+  <div class="pkg-media">
+    <Picture
+      src={facadeImage(pkg.image)}
+      alt={pkg.imageAlt}
+      formats={['avif']}
+      fallbackFormat="webp"
+      widths={[400, 640, 860]}
+      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+      quality={58}
+      class="pkg-image"
+      loading="lazy"
+      decoding="async"
+    />
+
+    <div class="pkg-availability">
+      <Pill tone={pkg.availability === 'titled' ? 'forest' : 'brick'}>
+        {pkg.availability === 'titled' ? 'Titled now' : `Title ${pkg.titleDate}`}
+      </Pill>
+    </div>
+
+    <div class="pkg-price">
+      <span class="text-eyebrow uppercase tracking-[0.1em] text-white/75">From</span>
+      <span class="num text-h3 font-medium">{formatAud(from)}</span>
+    </div>
+  </div>
+
+  <div class="pkg-body">
+    <p class="text-small text-ink-55">{location}</p>
+
+    <h3 class="mt-1 text-h3">
+      <a class="pkg-link" href={`/house-and-land/${pkg.id}/`}>
+        {designName} — Lot <span class="num">{pkg.lot}</span>
+      </a>
+    </h3>
+
+    <p class="num mt-3 text-small text-ink-70">
+      {specRow}
+    </p>
+
+    {
+      buildPrice && pkg.landPrice && (
+        <DimensionLine
+          class="mt-5"
+          variant="compact"
+          segments={[
+            { label: 'land', amount: pkg.landPrice, land: true },
+            { label: 'build', amount: buildPrice },
+          ]}
+          total={from}
+          totalLabel="Nothing more to pay"
+          caption={`Price breakdown for ${designName} at Lot ${pkg.lot}, ${pkg.suburb}.`}
+        />
+      )
+    }
+
+    <dl class="pkg-tiers">
+      {
+        pkg.priceSmartSpecs && (
+          <div>
+            <dt>SmartSpecs</dt>
+            <dd class="num">{formatAud(pkg.priceSmartSpecs)}</dd>
+          </div>
+        )
+      }
+      <div>
+        <dt>LuxeTurnkey</dt>
+        <dd class="num">{formatAud(pkg.priceLuxeTurnkey)}</dd>
+      </div>
+    </dl>
+
+    {
+      (stampDutyExempt || fhog) && (
+        <p class="pkg-badge">
+          <Icon name="check" size={15} class="shrink-0 text-forest" />
+          {stampDutyExempt
+            ? 'No stamp duty and eligible for the $10,000 grant'
+            : 'Eligible for the $10,000 First Home Owner Grant'}
+        </p>
+      )
+    }
+
+    <p class="pkg-foot">
+      <span class="text-small font-semibold">View this package</span>
+      <Icon name="arrow-right" size={18} class="pkg-arrow shrink-0" />
+    </p>
+  </div>
+</article>
+
+<style>
+  .pkg {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color var(--duration-base) var(--ease-out);
+  }
+
+  .pkg:hover {
+    border-color: var(--color-rule-strong);
+  }
+
+  .pkg[hidden] {
+    display: none;
+  }
+
+  .pkg-media {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pkg-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform var(--duration-image) var(--ease-out);
+  }
+
+  .pkg:hover .pkg-image {
+    transform: scale(1.03);
+  }
+
+  .pkg-availability {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .pkg-price {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 2.5rem 1.25rem 1rem;
+    color: var(--color-surface);
+    background: linear-gradient(to top, rgb(22 33 31 / 0.85), rgb(22 33 31 / 0));
+  }
+
+  .pkg-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+
+  .pkg-link {
+    text-decoration: none;
+  }
+
+  .pkg-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .pkg-tiers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1.25rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .pkg-tiers dt {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-55);
+  }
+
+  .pkg-tiers dd {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-body);
+    font-weight: 500;
+  }
+
+  .pkg-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+  }
+
+  .pkg-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+
+  .pkg-arrow {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .pkg:hover .pkg-arrow {
+    transform: translateX(3px);
+  }
+</style>

@@ -1,0 +1,154 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../ui/Icon.astro';
+import { facadeImage } from '../../lib/images';
+import { formatAud, formatArea, specLine } from '../../lib/format';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  design: CollectionEntry<'designs'>['data'];
+  /** Cheapest real package built on this design, if there is one. */
+  fromPrice: number | null;
+  /** Server-rendered filter state, so nothing flashes before the script runs. */
+  hidden?: boolean;
+}
+
+const { design, fromPrice, hidden } = Astro.props;
+---
+
+<article
+  class="card"
+  data-filter-item
+  data-frontage={String(design.frontage)}
+  data-reveal
+  hidden={hidden}
+>
+  <div class="card-media">
+    <Picture
+      src={facadeImage(design.image)}
+      alt={design.imageAlt}
+      formats={['avif']}
+      fallbackFormat="webp"
+      widths={[400, 640, 860]}
+      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+      quality={58}
+      class="card-image"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <div class="card-body">
+    <p class="num text-eyebrow uppercase tracking-[0.1em] text-ink-55">
+      {design.frontage}m frontage · {design.series}
+    </p>
+
+    <h3 class="mt-2 text-h3">
+      <a class="card-link" href={`/home-designs/${design.id}/`}>
+        {design.name}
+      </a>
+    </h3>
+
+    <p class="num mt-3 text-small text-ink-70">
+      {specLine(design.bedrooms, design.bathrooms, design.cars)}
+    </p>
+    <p class="num mt-1 text-small text-ink-70">
+      {design.squares} sq · {formatArea(design.areaM2)}
+    </p>
+
+    <div class="card-foot">
+      {
+        fromPrice ? (
+          <p class="text-small">
+            <span class="text-ink-55">House and land from </span>
+            <span class="num font-medium">{formatAud(fromPrice)}</span>
+          </p>
+        ) : (
+          <p class="num text-small text-ink-55">Minimum block {design.minBlock}</p>
+        )
+      }
+      <Icon name="arrow-right" size={18} class="card-arrow shrink-0" />
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color var(--duration-base) var(--ease-out);
+  }
+
+  .card:hover {
+    border-color: var(--color-rule-strong);
+  }
+
+  .card[hidden] {
+    display: none;
+  }
+
+  .card-media {
+    overflow: hidden;
+  }
+
+  .card-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform var(--duration-image) var(--ease-out);
+  }
+
+  .card:hover .card-image {
+    transform: scale(1.03);
+  }
+
+  .card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+
+  .card-link {
+    text-decoration: none;
+  }
+
+  /* The whole card is the hit area; the heading link is what a screen reader
+     and the keyboard actually get. */
+  .card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .card {
+    position: relative;
+  }
+
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .card-foot {
+    margin-top: 1.25rem;
+  }
+
+  .card-arrow {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .card:hover .card-arrow {
+    transform: translateX(3px);
+  }
+</style>

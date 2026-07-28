@@ -1,0 +1,154 @@
+---
+import { getCollection } from 'astro:content';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
+import DesignCard from '../cards/DesignCard.astro';
+import { packageFromPrice } from '../../lib/format';
+import { site } from '../../lib/site';
+
+const designs = (await getCollection('designs')).map((entry) => entry.data);
+const packages = (await getCollection('packages')).map((entry) => entry.data);
+
+/** Cheapest real package built on each design — never an invented figure. */
+const fromPriceByDesign = new Map<string, number>();
+for (const pkg of packages) {
+  const price = packageFromPrice(pkg);
+  const current = fromPriceByDesign.get(pkg.design);
+  if (current === undefined || price < current) fromPriceByDesign.set(pkg.design, price);
+}
+
+const frontages = [...new Set(designs.map((d) => d.frontage))].sort((a, b) => a - b);
+
+/**
+ * Interleave the frontage groups so the unfiltered view shows the width of
+ * the range rather than three Tennysons. Filtering only hides cards, so each
+ * group still reads small-to-large.
+ */
+const byFrontage = frontages.map((f) =>
+  designs.filter((d) => d.frontage === f).sort((a, b) => a.squares - b.squares),
+);
+const ordered = Array.from(
+  { length: Math.max(...byFrontage.map((g) => g.length)) },
+  (_, row) => byFrontage.map((group) => group[row]).filter(Boolean),
+).flat() as typeof designs;
+
+const VISIBLE = 6;
+---
+
+<Section id="designs" band="limestone" labelledby="designs-heading">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div class="max-w-prose">
+      <Eyebrow>
+        <span class="num">{site.designsTotal}</span> designs · <span class="num">8.5</span
+        >m to <span class="num">16</span>m frontage
+      </Eyebrow>
+      <h2 id="designs-heading" class="mt-4 text-h2">
+        Start with your block, not with a brochure.
+      </h2>
+      <p class="mt-5 text-lead text-ink-70">
+        Every design is built around a frontage width. Tell us how wide your block is and
+        the list gets short fast.
+      </p>
+    </div>
+
+    <a class="section-link" href="/home-designs/">
+      View all <span class="num">{site.designsTotal}</span> designs
+      <Icon name="arrow-right" size={18} />
+    </a>
+  </div>
+
+  <div
+    class="mt-10 flex flex-wrap items-center gap-2"
+    data-designs-filter
+    role="group"
+    aria-label="Filter designs by frontage"
+  >
+    <button class="chip" type="button" data-filter-value="all" aria-pressed="true">
+      All
+    </button>
+    {
+      frontages.map((frontage) => (
+        <button
+          class="chip num"
+          type="button"
+          data-filter-value={String(frontage)}
+          aria-pressed="false"
+        >
+          {frontage}m
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="sr-only" role="status" aria-live="polite" data-designs-status></p>
+
+  <div
+    class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    data-designs-grid
+    data-reveal-group
+  >
+    {
+      ordered.map((design, i) => (
+        <DesignCard
+          design={design}
+          fromPrice={fromPriceByDesign.get(design.id) ?? null}
+          hidden={i >= VISIBLE}
+        />
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-inline: 1.125rem;
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    font-size: var(--text-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-micro) var(--ease-out),
+      color var(--duration-micro) var(--ease-out),
+      border-color var(--duration-micro) var(--ease-out);
+  }
+
+  .chip:hover {
+    border-color: var(--color-ink);
+  }
+
+  .chip[aria-pressed='true'] {
+    background-color: var(--color-forest);
+    border-color: var(--color-forest);
+    color: var(--color-surface);
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .section-link :global(svg) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .section-link:hover :global(svg) {
+    transform: translateX(3px);
+  }
+</style>
+
+<script>
+  import '../../scripts/home';
+</script>

@@ -1,0 +1,166 @@
+---
+import { getCollection } from 'astro:content';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
+import PackageCard from '../cards/PackageCard.astro';
+import { formatAud, packageFromPrice } from '../../lib/format';
+import { site } from '../../lib/site';
+
+const [packages, designs, estates, regions] = await Promise.all([
+  getCollection('packages'),
+  getCollection('designs'),
+  getCollection('estates'),
+  getCollection('regions'),
+]);
+
+const designName = new Map(designs.map((d) => [d.data.id, d.data.name]));
+const estateName = new Map(estates.map((e) => [e.data.id, e.data.name]));
+
+const PER_REGION = 3;
+const DEFAULT_REGION = 'melbourne-west';
+
+/* Verified records first, then cheapest — so the cards a visitor sees first
+   are the ones whose numbers came from a public listing. */
+const orderedRegions = [...regions].sort((a, b) => a.data.order - b.data.order);
+
+const featured = orderedRegions.flatMap((region) =>
+  packages
+    .map((entry) => entry.data)
+    .filter((pkg) => pkg.region === region.data.id)
+    .sort((a, b) => {
+      if (a.verified !== b.verified) return a.verified ? -1 : 1;
+      return packageFromPrice(a) - packageFromPrice(b);
+    })
+    .slice(0, PER_REGION),
+);
+
+const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.data)));
+---
+
+<Section id="house-and-land" band="paper" labelledby="packages-heading">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div class="max-w-prose">
+      <Eyebrow>Available now</Eyebrow>
+      <h2 id="packages-heading" class="mt-4 text-h2">
+        Land and a fixed-price home, in one contract price.
+      </h2>
+      <p class="mt-5 text-lead text-ink-70">
+        <span class="num">{site.packagesTotal}</span> packages across Melbourne, Geelong, Ballarat
+        and Gippsland — from{' '}
+        <span class="num">{formatAud(fromPrice)}</span>. Every one shows the land price
+        and the build price separately, so you can see exactly what you're paying for.
+      </p>
+    </div>
+
+    <a class="section-link" href="/house-and-land/">
+      View all <span class="num">{site.packagesTotal}</span> packages
+      <Icon name="arrow-right" size={18} />
+    </a>
+  </div>
+
+  <div
+    class="tabs"
+    data-regions-filter
+    role="group"
+    aria-label="Filter packages by region"
+  >
+    {
+      orderedRegions.map((region) => (
+        <button
+          class="tab"
+          type="button"
+          data-filter-value={region.data.id}
+          data-filter-label={region.data.name}
+          aria-pressed={region.data.id === DEFAULT_REGION ? 'true' : 'false'}
+        >
+          {region.data.name}
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="sr-only" role="status" aria-live="polite" data-packages-status></p>
+
+  <div
+    class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    data-packages-grid
+    data-reveal-group
+  >
+    {
+      featured.map((pkg) => (
+        <PackageCard
+          pkg={pkg}
+          designName={designName.get(pkg.design) ?? pkg.design}
+          estateName={pkg.estate ? (estateName.get(pkg.estate) ?? null) : null}
+          hidden={pkg.region !== DEFAULT_REGION}
+        />
+      ))
+    }
+  </div>
+
+  <p class="mt-8 max-w-prose text-small text-ink-55">
+    Price correct at publication. Subject to change. Land is sold under a separate
+    contract with the estate developer.
+  </p>
+</Section>
+
+<style>
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    padding-bottom: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    /* On phones the region set scrolls rather than wrapping to three rows. */
+    scroll-snap-type: x proximity;
+  }
+
+  .tab {
+    flex: none;
+    min-height: 44px;
+    padding-inline: 1.125rem;
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    font-size: var(--text-small);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition:
+      background-color var(--duration-micro) var(--ease-out),
+      color var(--duration-micro) var(--ease-out),
+      border-color var(--duration-micro) var(--ease-out);
+  }
+
+  .tab:hover {
+    border-color: var(--color-ink);
+  }
+
+  .tab[aria-pressed='true'] {
+    background-color: var(--color-forest);
+    border-color: var(--color-forest);
+    color: var(--color-surface);
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .section-link :global(svg) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .section-link:hover :global(svg) {
+    transform: translateX(3px);
+  }
+</style>

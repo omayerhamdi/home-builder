@@ -1,0 +1,166 @@
+---
+import Icon from '../ui/Icon.astro';
+import { site } from '../../lib/site';
+
+/**
+ * Four facts, hairline separated. The job is to remove doubt in three
+ * seconds, so nothing here is decorative and every claim is checkable.
+ */
+const items = [
+  {
+    value: 'HIA',
+    unit: 'Member',
+    label: `Registered Building Practitioner ${site.builderLicence}`,
+    mono: false,
+  },
+  {
+    value: String(site.rating.value),
+    unit: '★',
+    label: `${site.rating.count} Google reviews`,
+    mono: true,
+  },
+  {
+    value: '18',
+    unit: 'months',
+    label: 'Your price, held',
+    mono: true,
+  },
+  {
+    value: '6',
+    unit: 'months',
+    label: 'Maintenance after handover — double the industry standard',
+    mono: true,
+  },
+];
+---
+
+<section class="border-b border-rule bg-surface" aria-label="Credentials">
+  <div class="mx-auto max-w-content px-gutter">
+    <ul class="proof" data-reveal-group>
+      {
+        items.map((item) => (
+          <li class="proof-item" data-reveal>
+            <p class="proof-value">
+              <span class:list={[item.mono && 'num']}>{item.value}</span>
+              <span class="proof-unit">{item.unit}</span>
+            </p>
+            <p class="proof-label">{item.label}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="proof-foot">
+      <Icon name="shield-check" size={18} class="shrink-0 text-forest" />
+      <span>
+        Fixed site costs, fixed price, held for <span class="num">18</span> months from signing.
+      </span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .proof {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .proof {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .proof {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .proof-item {
+    padding-block: 1.75rem;
+    padding-right: 1.5rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .proof-item:last-child {
+    border-bottom: 0;
+  }
+
+  @media (min-width: 640px) {
+    .proof-item {
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--color-rule);
+    }
+
+    .proof-item:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .proof-item:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .proof-item {
+      padding-block: 2.25rem;
+      padding-left: 2rem;
+      border-left: 1px solid var(--color-rule);
+      border-bottom: 0;
+    }
+
+    .proof-item:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .proof-item:nth-child(odd) {
+      padding-left: 2rem;
+      border-left: 1px solid var(--color-rule);
+    }
+
+    .proof-item:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  .proof-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .proof-unit {
+    font-family: var(--font-body);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-ink-55);
+    letter-spacing: 0;
+  }
+
+  .proof-label {
+    margin-top: 0.375rem;
+    max-width: 30ch;
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+  }
+
+  .proof-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding-block: 1rem 1.25rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+  }
+</style>

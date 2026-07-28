@@ -1,0 +1,4 @@
+# This deployment is a client preview, not the live site. It must never be
+# indexed alongside the production site at dbnhomes.com.au.
+User-agent: *
+Disallow: /

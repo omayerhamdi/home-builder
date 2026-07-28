@@ -1,0 +1,178 @@
+---
+import '../styles/theme.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import MobileBar from '../components/layout/MobileBar.astro';
+import SkipLink from '../components/layout/SkipLink.astro';
+import { site } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 1200×630, per page type. Never the favicon. */
+  ogImage?: string;
+  overHero?: boolean;
+}
+
+const { title, description, ogImage = '/og/home.jpg', overHero = false } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+
+/**
+ * Site-level structured data. AggregateRating is deliberately absent: the
+ * 4.8★ / 25 rating is real, but publishing it as schema needs the client's
+ * written authorisation, which is tracked as `publishApproved` on the review
+ * records.
+ */
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  name: site.name,
+  legalName: site.legalName,
+  description,
+  url: Astro.site?.href,
+  telephone: site.phone,
+  email: site.email,
+  identifier: { '@type': 'PropertyValue', name: 'ABN', value: site.abn },
+  additionalProperty: {
+    '@type': 'PropertyValue',
+    name: 'Registered Building Practitioner',
+    value: site.builderLicence,
+  },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.display.street,
+    addressLocality: site.display.suburb,
+    addressRegion: site.display.state,
+    postalCode: site.display.postcode,
+    addressCountry: 'AU',
+  },
+  areaServed: [
+    'Melbourne West',
+    'Melbourne North',
+    'Melbourne South East',
+    'Geelong',
+    'Ballarat',
+    'Gippsland',
+  ],
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
+    opens: '11:00',
+    closes: '17:00',
+  },
+};
+---
+
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="canonical" href={canonical} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- This is a client preview deployment, not the live site. It must never
+         be indexed alongside the real dbnhomes.com.au. -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link
+      rel="preload"
+      href="/fonts/archivo-latin-wdth-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <script is:inline>
+      // Set before first paint so progressive-enhancement styles (the
+      // dimension-line draw, section entrances) only apply when they can
+      // actually be driven.
+      document.documentElement.classList.add('js');
+    </script>
+
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(businessSchema)}
+    />
+  </head>
+
+  <body>
+    <SkipLink />
+    <Header overHero={overHero} />
+
+    <main id="main" class:list={[!overHero && 'pt-header lg:pt-header-lg']}>
+      <slot />
+    </main>
+
+    <Footer />
+    <MobileBar />
+
+    <script>
+      import '../scripts/reveal';
+    </script>
+
+    <style is:global>
+      /* Entrance animation, gated behind html.js so that with scripting off
+         every section is simply visible. */
+      html.js [data-reveal] {
+        opacity: 0;
+        transform: translateY(12px);
+        transition:
+          opacity var(--duration-enter) var(--ease-out),
+          transform var(--duration-enter) var(--ease-out);
+        transition-delay: var(--reveal-delay, 0ms);
+      }
+
+      html.js [data-reveal].is-in {
+        opacity: 1;
+        transform: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html.js [data-reveal] {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* The sticky action bar sits over the last section below 768px. */
+      @media (max-width: 767px) {
+        body {
+          padding-bottom: var(--spacing-mobilebar);
+        }
+      }
+    </style>
+  </body>
+</html>

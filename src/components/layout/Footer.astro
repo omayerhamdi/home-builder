@@ -1,0 +1,178 @@
+---
+import Logo from './Logo.astro';
+import Icon from '../ui/Icon.astro';
+import { footerNav, legalNav, site } from '../../lib/site';
+
+const year = 2026;
+
+/* Assembled here so a line break in the template can never eat a separator. */
+const legalLine = `${site.legalName} · ABN ${site.abn} · Registered Building Practitioner ${site.builderLicence} · HIA Member`;
+const contactLine = `${site.phone} · ${site.email} · ${site.display.fullAddress}`;
+---
+
+<footer class="bg-forest-deep text-surface">
+  <div class="mx-auto max-w-wide px-gutter py-section-tight">
+    <div class="grid gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-3">
+        <Logo tone="reversed" height={38} />
+        <p class="mt-5 max-w-[26ch] text-small text-white/70">
+          {site.positioning}
+        </p>
+        <a class="footer-contact num mt-6" href={site.phoneHref}>
+          <Icon name="phone" size={16} />
+          {site.phone}
+        </a>
+        <a class="footer-contact" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+      </div>
+
+      <div class="grid gap-10 sm:grid-cols-3 lg:col-span-6">
+        {
+          footerNav.map((column) => (
+            <nav aria-label={column.heading}>
+              <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-limestone">
+                {column.heading}
+              </p>
+              <ul class="mt-4 flex flex-col">
+                {column.links.map((link) => (
+                  <li>
+                    <a class="footer-link" href={link.href}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))
+        }
+      </div>
+
+      <div class="lg:col-span-3">
+        <h2 class="text-h3">New releases before they're listed</h2>
+        <p class="mt-3 text-small text-white/70">
+          Land in Melbourne's west moves fast. Join the list and we'll email you when new
+          packages are released — usually before they reach the portals.
+        </p>
+
+        <form class="mt-5" data-newsletter>
+          <label class="block text-small font-semibold" for="newsletter-email">
+            Email address
+          </label>
+          <div class="mt-2 flex gap-2">
+            <input
+              class="footer-input"
+              id="newsletter-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+            <button class="footer-join" type="submit">Join</button>
+          </div>
+          <p class="mt-2 text-small text-white/60">
+            One or two emails a month. Unsubscribe any time.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-14 border-t border-white/15 pt-8">
+      <p class="num text-small text-white/70">{legalLine}</p>
+      <p class="num mt-1 text-small text-white/70">{contactLine}</p>
+
+      <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+        {
+          legalNav.map((link) => (
+            <li>
+              <a class="footer-link" href={link.href}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-8 max-w-[80ch] text-small leading-relaxed text-white/55">
+        Prices are correct at the date of publication and subject to change. Images are
+        indicative and may show upgrade items not included in the advertised price. Land
+        is sold under a separate contract with the estate developer. Full terms in our
+        Clauses & Provisions.
+      </p>
+
+      <p class="mt-6 text-small text-white/55">
+        {`© ${site.name} ${year}`}
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    font-size: var(--text-small);
+    color: rgb(255 255 255 / 0.8);
+    text-decoration: none;
+    transition: color var(--duration-micro) var(--ease-out);
+  }
+
+  .footer-link:hover {
+    color: var(--color-surface);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .footer-contact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    font-size: var(--text-small);
+    color: rgb(255 255 255 / 0.8);
+    text-decoration: none;
+  }
+
+  .footer-contact:hover {
+    color: var(--color-surface);
+  }
+
+  .footer-input {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    padding-inline: 0.875rem;
+    border: 1px solid rgb(255 255 255 / 0.25);
+    border-radius: var(--radius-md);
+    background-color: rgb(255 255 255 / 0.06);
+    color: var(--color-surface);
+    font-size: var(--text-small);
+  }
+
+  .footer-input::placeholder {
+    color: rgb(255 255 255 / 0.45);
+  }
+
+  .footer-input:focus-visible {
+    outline: 2px solid var(--color-surface);
+    outline-offset: 2px;
+  }
+
+  .footer-join {
+    height: 48px;
+    padding-inline: 1.25rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-forest);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--duration-base) var(--ease-out);
+  }
+
+  .footer-join:hover {
+    background-color: var(--color-limestone);
+  }
+</style>

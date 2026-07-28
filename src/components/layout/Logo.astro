@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../assets/img/brand/dbn-homes-logo.png';
+import { site } from '../../lib/site';
+
+/**
+ * The client's mark, never repainted. On light surfaces it renders exactly as
+ * supplied; on dark bands `tone="reversed"` renders it as reversed monochrome
+ * (white), which is the only permitted treatment.
+ */
+interface Props {
+  tone?: 'brand' | 'reversed';
+  height?: number;
+  class?: string;
+}
+
+const { tone = 'brand', height = 34, class: className = '' } = Astro.props;
+const ratio = logo.width / logo.height;
+---
+
+<Image
+  src={logo}
+  alt={`${site.name}`}
+  width={Math.round(height * ratio)}
+  height={height}
+  densities={[1, 2]}
+  loading="eager"
+  class:list={['w-auto', tone === 'reversed' && 'logo-reversed', className]}
+  style={`height:${height}px`}
+/>
+
+<style>
+  .logo-reversed {
+    filter: brightness(0) invert(1);
+  }
+</style>

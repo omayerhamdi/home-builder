@@ -1,0 +1,64 @@
+---
+import Icon from '../ui/Icon.astro';
+import { site } from '../../lib/site';
+
+/**
+ * Sticky action bar below 768px: the three things a buyer on a phone
+ * actually wants to do.
+ */
+---
+
+<div class="mobile-bar md:hidden">
+  <nav aria-label="Quick actions" class="mobile-bar-inner">
+    <a class="mobile-bar-item" href={site.phoneHref}>
+      <Icon name="phone" size={18} />
+      Call
+    </a>
+    <a class="mobile-bar-item is-primary" href="/build-a-quote/">Build a quote</a>
+    <a class="mobile-bar-item" href="/display-homes/">
+      <Icon name="map-pin" size={18} />
+      Display
+    </a>
+  </nav>
+</div>
+
+<style>
+  .mobile-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-rule);
+    box-shadow: var(--shadow-bar);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-bar-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem var(--spacing-gutter);
+  }
+
+  .mobile-bar-item {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    min-height: 48px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .mobile-bar-item.is-primary {
+    flex-direction: row;
+    background-color: var(--color-forest);
+    color: var(--color-surface);
+    font-size: var(--text-small);
+  }
+</style>

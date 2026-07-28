@@ -1,0 +1,342 @@
+---
+import Logo from './Logo.astro';
+import Icon from '../ui/Icon.astro';
+import { primaryNav, site } from '../../lib/site';
+
+/**
+ * The drawer navigation used below 1024px.
+ *
+ * Full width on phones, a 26rem right-hand panel on tablets. Sections that
+ * open a mega menu on desktop become accordions here, so the same
+ * information architecture holds at every width. Focus is trapped while the
+ * drawer is open, Escape closes it, and the panel is `inert` when closed so
+ * it is never reachable by tab or by a screen reader.
+ */
+---
+
+<div id="mobile-nav" class="mobile-nav lg:hidden" data-mobile-nav inert>
+  <button
+    type="button"
+    class="mobile-nav-backdrop"
+    tabindex="-1"
+    aria-hidden="true"
+    data-nav-close></button>
+
+  <div
+    class="mobile-nav-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="mobile-nav-title"
+    data-nav-dialog
+  >
+    <div class="mobile-nav-head">
+      <p id="mobile-nav-title" class="sr-only">Menu</p>
+      <Logo height={30} />
+      <button type="button" class="mobile-nav-close" data-nav-close>
+        <Icon name="x" size={22} />
+        <span class="sr-only">Close menu</span>
+      </button>
+    </div>
+
+    <nav aria-label="Primary" class="mobile-nav-body">
+      <ul class="flex flex-col">
+        {
+          primaryNav.map((item, i) =>
+            item.panel ? (
+              <li class="mobile-nav-group">
+                <button
+                  type="button"
+                  class="mobile-nav-link"
+                  aria-expanded="false"
+                  aria-controls={`mobile-acc-${i}`}
+                  data-acc-trigger
+                >
+                  {item.label}
+                  <Icon
+                    name="chevron-down"
+                    size={18}
+                    class="mobile-nav-chevron shrink-0 transition-transform duration-base ease-out"
+                  />
+                </button>
+
+                <div id={`mobile-acc-${i}`} class="mobile-nav-sub" data-acc-panel hidden>
+                  {item.panel.columns.map((column) => (
+                    <div class="pb-2">
+                      <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
+                        {column.heading}
+                      </p>
+                      <ul class="mt-1 flex flex-col">
+                        {column.links.map((link) => (
+                          <li>
+                            <a class="mobile-nav-sublink" href={link.href}>
+                              <span>{link.label}</span>
+                              {link.note && (
+                                <span class="num text-small text-ink-55">
+                                  {link.note}
+                                </span>
+                              )}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  <a class="mobile-nav-promo" href={item.panel.promo.cta.href}>
+                    <span>
+                      <span class="block font-semibold">{item.panel.promo.heading}</span>
+                      <span class="block text-small text-ink-70">
+                        {item.panel.promo.body}
+                      </span>
+                    </span>
+                    <Icon name="arrow-right" size={18} class="shrink-0" />
+                  </a>
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a class="mobile-nav-link" href={item.href}>
+                  {item.label}
+                  <Icon name="arrow-up-right" size={18} class="shrink-0 text-ink-55" />
+                </a>
+              </li>
+            ),
+          )
+        }
+      </ul>
+
+      <p class="mt-7 text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
+        More
+      </p>
+      <ul class="mobile-nav-more">
+        <li><a href="/house-and-land/#where-we-build">Where we build</a></li>
+        <li><a href="/first-home-buyers/">First home buyers</a></li>
+        <li><a href="/gallery/">Gallery</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="mobile-nav-foot">
+      <a class="mobile-nav-cta" href="/build-a-quote/">Build a quote</a>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <a class="mobile-nav-secondary num" href={site.phoneHref}>
+          <Icon name="phone" size={16} />
+          {site.phone}
+        </a>
+        <a class="mobile-nav-secondary" href="/display-homes/">
+          <Icon name="map-pin" size={16} />
+          Visit display
+        </a>
+      </div>
+      <p class="mt-4 text-small text-ink-55">
+        {site.display.hours}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .mobile-nav[inert] {
+    /* Kept in the DOM so the panel can transition, but unreachable. */
+    visibility: hidden;
+  }
+
+  .mobile-nav-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background-color: rgb(22 33 31 / 0.5);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+    cursor: default;
+  }
+
+  .mobile-nav-panel {
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-float);
+    transform: translateX(100%);
+    transition: transform var(--duration-enter) var(--ease-out);
+  }
+
+  @media (min-width: 480px) {
+    .mobile-nav-panel {
+      width: 26rem;
+      max-width: 92vw;
+      border-left: 1px solid var(--color-rule);
+    }
+  }
+
+  .mobile-nav[data-open] {
+    pointer-events: auto;
+  }
+
+  .mobile-nav[data-open] .mobile-nav-backdrop {
+    opacity: 1;
+  }
+
+  .mobile-nav[data-open] .mobile-nav-panel {
+    transform: translateX(0);
+  }
+
+  .mobile-nav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: var(--spacing-header);
+    padding-inline: var(--spacing-gutter);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .mobile-nav-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -0.625rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .mobile-nav-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-inline: var(--spacing-gutter);
+    padding-block: 0.5rem 1.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-nav-group {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .mobile-nav-group:last-child {
+    border-bottom: 0;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 56px;
+    padding-block: 0.75rem;
+    border: 0;
+    border-bottom: 1px solid var(--color-rule);
+    background: transparent;
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .mobile-nav-group > .mobile-nav-link {
+    border-bottom: 0;
+  }
+
+  [data-acc-trigger][aria-expanded='true'] .mobile-nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  .mobile-nav-sub {
+    padding-bottom: 1rem;
+  }
+
+  .mobile-nav-sub[hidden] {
+    display: none;
+  }
+
+  .mobile-nav-sublink {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 44px;
+    padding-block: 0.375rem;
+    font-size: var(--text-small);
+    text-decoration: none;
+  }
+
+  .mobile-nav-more {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .mobile-nav-more a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--text-small);
+    text-decoration: none;
+    color: var(--color-ink-70);
+  }
+
+  .mobile-nav-promo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background-color: var(--color-limestone);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+  }
+
+  .mobile-nav-foot {
+    padding: 1.25rem var(--spacing-gutter);
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-rule);
+    background-color: var(--color-paper);
+  }
+
+  .mobile-nav-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-forest);
+    color: var(--color-surface);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .mobile-nav-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>

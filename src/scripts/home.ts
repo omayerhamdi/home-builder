@@ -102,18 +102,16 @@ wire({
 });
 
 wire({
-  controls: '[data-regions-filter]',
+  controls: '[data-estates-filter]',
   items: '[data-packages-grid]',
-  key: 'region',
+  key: 'estate',
   limit: 3,
   status: '[data-packages-status]',
-  statusLabel: (shown, _total, value) => {
+  statusLabel: (shown, total, value) => {
     const name =
       document.querySelector<HTMLElement>(`[data-filter-value="${value}"]`)?.dataset
-        .filterLabel ?? 'this region';
-    return `Showing ${shown} of ${
-      document.querySelectorAll(`[data-packages-grid] [data-region="${value}"]`).length
-    } packages in ${name}`;
+        .filterLabel ?? 'this estate';
+    return `Showing ${shown} of ${total} packages at ${name}`;
   },
 });
 

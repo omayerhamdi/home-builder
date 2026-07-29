@@ -1,0 +1,206 @@
+---
+import { getCollection } from 'astro:content';
+import Icon from '../ui/Icon.astro';
+import { formatAud, packageFromPrice } from '../../lib/format';
+
+/**
+ * Package finder.
+ *
+ * Lifted out of the hero and given its own band. The hero already carries a
+ * claim, a sentence and two buttons; a four-field form on top of that is one
+ * job too many for a single screen. Here it gets room, a real label and a
+ * live count beside it — and it becomes the seam between the promise and the
+ * proof rather than clutter inside the promise.
+ *
+ * Every option and every number is derived from the data.
+ */
+const [estates, packages] = await Promise.all([
+  getCollection('estates'),
+  getCollection('packages'),
+]);
+
+const rows = packages.map((entry) => entry.data);
+const fromPrice = Math.min(...rows.map(packageFromPrice));
+
+const estateOptions = estates
+  .map((entry) => ({
+    ...entry.data,
+    count: rows.filter((p) => p.estate === entry.data.id).length,
+  }))
+  .filter((e) => e.count > 0)
+  .sort((a, b) => b.count - a.count);
+
+const bedroomOptions = [...new Set(rows.map((p) => p.bedrooms))].sort((a, b) => a - b);
+
+const budgetOptions = [
+  { label: 'Under $600k', value: '0-600000' },
+  { label: '$600k – $650k', value: '600000-650000' },
+  { label: '$650k and above', value: '650000-' },
+];
+---
+
+<section id="find-a-package" class="finder-band" aria-labelledby="finder-heading">
+  <div class="mx-auto max-w-content px-gutter">
+    <div class="finder">
+      <div class="finder-head">
+        <p class="finder-eyebrow" id="finder-heading">Find a package</p>
+        <p class="finder-count num">
+          {rows.length} available · from {formatAud(fromPrice)}
+        </p>
+      </div>
+
+      <form class="finder-form" data-package-finder>
+        <div class="finder-field">
+          <label for="finder-beds">Bedrooms</label>
+          <select id="finder-beds" name="beds">
+            <option value="">Any</option>
+            {bedroomOptions.map((beds) => <option value={beds}>{beds} bedrooms</option>)}
+          </select>
+        </div>
+
+        <div class="finder-field">
+          <label for="finder-price">Budget</label>
+          <select id="finder-price" name="price">
+            <option value="">Any</option>
+            {
+              budgetOptions.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))
+            }
+          </select>
+        </div>
+
+        <div class="finder-field">
+          <label for="finder-estate">Estate</label>
+          <select id="finder-estate" name="estate">
+            <option value="">Any estate</option>
+            {
+              estateOptions.map((estate) => (
+                <option value={estate.id}>
+                  {estate.name}, {estate.suburb}
+                </option>
+              ))
+            }
+          </select>
+        </div>
+
+        <button class="finder-submit" type="submit">
+          Find packages
+          <Icon name="arrow-right" size={18} />
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .finder-band {
+    background-color: var(--color-limestone);
+    padding-block: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .finder {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid var(--color-limestone-deep);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-float);
+  }
+
+  .finder-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .finder-eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .finder-count {
+    font-size: var(--text-small);
+    color: var(--color-ink-55);
+  }
+
+  .finder-form {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .finder-form {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .finder-submit {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .finder-form {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      align-items: end;
+      gap: 1rem;
+    }
+
+    .finder-submit {
+      grid-column: auto;
+    }
+  }
+
+  .finder-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .finder-field label {
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .finder-field select {
+    height: 52px;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: var(--text-small);
+  }
+
+  .finder-field select:focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 2px;
+  }
+
+  .finder-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 52px;
+    padding-inline: 1.75rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: var(--color-forest);
+    color: var(--color-surface);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--duration-base) var(--ease-out);
+  }
+
+  .finder-submit:hover {
+    background-color: var(--color-forest-lift);
+  }
+</style>

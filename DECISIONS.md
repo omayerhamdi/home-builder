@@ -5,6 +5,49 @@ up, the option that was easier to rebuild in Elementor and more honest about pri
 
 ---
 
+**The aggregator's 81 packages, 24 suburbs and 6 regions are not published.**
+The listing could not be confirmed as DBN's own inventory, and it contradicts itself — the
+same lot appears twice with different homes on it. The inventory is now built from the
+verified records plus generated ones confined to confirmed estates, and every count on the
+page is derived from that data at build time. The site says less and means all of it.
+
+**The homepage is composed twice, not once.**
+Below 768px the film and the words are separated: a media block, then a solid forest panel
+carrying the headline. Type never sits over moving video on a phone, so contrast is fixed
+rather than fighting a scrim that changes brightness every frame. From 768px up the film
+goes full-bleed behind a three-layer scrim.
+
+**The package finder was lifted out of the hero into its own band.**
+The hero already carries a claim, a sentence and two buttons. A four-field form on top of
+that is one job too many for a single screen. On its own limestone band it gets a real
+label and a live count, and becomes the seam between the promise and the proof.
+
+**"Where we build" is a drawn locality plan, not an embedded map.**
+Pins are projected from the estates' real coordinates and the arcs are true distance rings
+from the CBD, so the map answers the question a buyer actually asks. Inline SVG means no
+map provider, no API key, no third-party script, and it inherits the palette. Pins are per
+suburb rather than per estate — three of these estates sit within a kilometre of each
+other and would otherwise collide into an unreadable knot.
+
+**First home buyer eligibility is plotted, not described.**
+One axis, the two thresholds shaded on it, every package in the inventory drawn as a tick.
+It is the dimension line's language applied to eligibility, and it answers in one glance
+where the range sits relative to $600,000 and $750,000.
+
+**Reviews are a native scroll-snap carousel.**
+The rail is a real scroll container, so a trackpad, a swipe, the keyboard and the scrollbar
+all work before any script runs; the buttons, counter and progress bar are enhancement on
+top. The next card is left peeking, which is what tells a visitor there is more.
+
+**The disclosure indicator is two icons, not one rotated.**
+Opening and closing read as different states rather than the same glyph tipped over, and
+the pair sits in a well that fills on hover so the trigger has a real target.
+
+**The closing CTA sits on photography, the footer stays flat.**
+Two adjacent dark bands of the same flat colour read as one long slab. Putting the CTA on a
+deep forest wash over a real DBN home separates them and gives the last screen before the
+small print something to look at.
+
 **Astro at its current major, not the version named in the original spec.**
 Same reasons hold — zero framework JavaScript, Content Collections, static output — and
 starting a new build on an older major would mean an upgrade before launch.

@@ -6,101 +6,225 @@ import Icon from '../ui/Icon.astro';
 import { site } from '../../lib/site';
 
 /**
- * Social proof without invented faces.
+ * Reviews, as a carousel.
  *
- * No stock headshots anywhere near this section — on a page about trust, a
- * fabricated portrait is the one substitution that costs more than it gains.
- * Reviewers are represented by their initials, set typographically.
+ * Built on native scroll-snap rather than a slider library: the rail is a real
+ * scroll container, so it works with a trackpad, a touch swipe, the keyboard
+ * and the scrollbar before a single line of script runs. The buttons and the
+ * counter are enhancement on top. The next card is deliberately left peeking
+ * at the right edge — that is what tells a visitor there is more without
+ * needing an instruction.
+ *
+ * No stock headshots. Reviewers are initials in a rounded avatar — on a page
+ * whose whole argument is trust, an invented face is the one substitution that
+ * costs more than it gains.
  *
  * The 4.8★ rating is real but is not published as AggregateRating schema:
- * every review record carries `publishApproved: false` until the client
- * authorises it in writing.
+ * every record carries `publishApproved: false` until the client authorises it.
  */
-const reviews = (await getCollection('reviews'))
-  .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 3);
+const reviews = (await getCollection('reviews')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 
-const initials = (author: string) =>
-  author
+/** Two characters, always — a lone initial reads as a mistake in the avatar. */
+const initials = (author: string) => {
+  const words = author
     .replace(/[^A-Za-z& ]/g, '')
     .split(/\s+|&/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
+    .filter(Boolean);
+  if (words.length >= 2) {
+    return `${words[0]![0]!}${words[1]![0]!}`.toUpperCase();
+  }
+  const word = words[0] ?? '?';
+  return `${word[0]!.toUpperCase()}${(word[1] ?? '').toLowerCase()}`;
+};
 ---
 
 <Section id="reviews" band="limestone" labelledby="reviews-heading">
-  <div class="flex flex-wrap items-end justify-between gap-6">
+  <div class="reviews-head">
     <div class="max-w-prose">
       <Eyebrow class="num">
         {`${site.rating.value} out of 5 · ${site.rating.count} Google reviews`}
       </Eyebrow>
       <h2 id="reviews-heading" class="mt-4 text-h2">
-        The same three things come up in nearly every review.
+        The same three things come up every time.
       </h2>
       <p class="mt-5 text-lead text-ink-70">
-        No sales pressure. A fast build. And being able to actually reach the person
-        managing your job.
+        No pressure. A fast build. Someone who answers the phone.
       </p>
     </div>
 
-    <a class="section-link" href={site.googleReviewsHref} rel="noopener">
-      Read all <span class="num">{site.rating.count}</span> reviews on Google
-      <Icon name="arrow-up-right" size={18} />
-    </a>
+    <div class="reviews-controls" data-carousel-controls hidden>
+      <p class="num reviews-index">
+        <span data-carousel-current>1</span>
+        <span class="reviews-index-sep" aria-hidden="true">/</span>
+        <span>{String(reviews.length).padStart(2, '0')}</span>
+      </p>
+      <div class="reviews-buttons">
+        <button type="button" class="reviews-button" data-carousel-prev>
+          <Icon name="arrow-left" size={18} />
+          <span class="sr-only">Previous review</span>
+        </button>
+        <button type="button" class="reviews-button" data-carousel-next>
+          <Icon name="arrow-right" size={18} />
+          <span class="sr-only">Next review</span>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <ul class="reviews" data-reveal-group>
-    {
-      reviews.map((review) => (
-        <li class="review" data-reveal>
-          <p class="review-stars" aria-label={`${site.rating.value} out of 5`}>
-            <span aria-hidden="true">★★★★★</span>
-          </p>
-          <blockquote class="review-quote">
-            <p>{review.data.quote}</p>
-          </blockquote>
-          <div class="review-foot">
-            <span class="review-avatar num" aria-hidden="true">
-              {initials(review.data.author)}
-            </span>
-            <span>
-              <span class="block text-small font-semibold">{review.data.author}</span>
-              <span class="block text-small text-ink-55">
-                {review.data.context} · {review.data.source}
-              </span>
-            </span>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
+  <div class="reviews-rail-wrap">
+    <ul
+      class="reviews-rail"
+      data-carousel-rail
+      tabindex="0"
+      role="group"
+      aria-label="Customer reviews"
+    >
+      {
+        reviews.map((review) => (
+          <li class="review" data-carousel-slide>
+            <p class="review-stars" aria-label={`${site.rating.value} out of 5`}>
+              {[0, 1, 2, 3, 4].map(() => (
+                <Icon name="star" size={14} strokeWidth={0} class="review-star" />
+              ))}
+            </p>
 
-  <p class="mt-8 max-w-prose text-small text-ink-55">
-    Quotes are condensed from public Google reviews. Wording, attribution and permission
-    to publish are being confirmed with the client before launch.
-  </p>
+            <blockquote class="review-quote">
+              <p>{review.data.quote}</p>
+            </blockquote>
+
+            <div class="review-foot">
+              <span class="review-avatar num" aria-hidden="true">
+                {initials(review.data.author)}
+              </span>
+              <span class="review-meta">
+                <span class="review-author">{review.data.author}</span>
+                <span class="num review-context">
+                  {review.data.context} · {review.data.source}
+                </span>
+              </span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="reviews-progress" data-carousel-progress hidden aria-hidden="true">
+      <span class="reviews-progress-bar" data-carousel-bar></span>
+    </div>
+  </div>
+
+  <div class="reviews-foot">
+    <a class="section-link" href={site.googleReviewsHref} rel="noopener">
+      Read all <span class="num">{site.rating.count}</span> on Google
+      <Icon name="arrow-up-right" size={18} />
+    </a>
+    <p class="reviews-note">
+      Condensed from public Google reviews. Wording and permission are being confirmed.
+    </p>
+  </div>
 </Section>
 
 <style>
-  .reviews {
-    display: grid;
+  .reviews-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 1.5rem;
-    margin-top: 3rem;
-    padding: 0;
-    list-style: none;
   }
 
-  @media (min-width: 768px) {
-    .reviews {
-      grid-template-columns: repeat(3, 1fr);
+  /* ------------------------------------------------------------ Controls */
+  .reviews-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .reviews-index {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-55);
+  }
+
+  .reviews-index-sep {
+    opacity: 0.45;
+  }
+
+  .reviews-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .reviews-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-rule-strong);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-micro) var(--ease-out),
+      border-color var(--duration-micro) var(--ease-out),
+      color var(--duration-micro) var(--ease-out);
+  }
+
+  .reviews-button:hover:not(:disabled) {
+    background-color: var(--color-forest);
+    border-color: var(--color-forest);
+    color: var(--color-surface);
+  }
+
+  .reviews-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* ---------------------------------------------------------------- Rail */
+  .reviews-rail-wrap {
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .reviews-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(86%, 24rem);
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0.25rem var(--spacing-gutter) 1.25rem;
+    margin-inline: calc(var(--spacing-gutter) * -1);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .reviews-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .reviews-rail {
+      grid-auto-columns: 24rem;
+      margin-inline: 0;
+      padding-inline: 0;
+      /* The last card can still reach the left edge, so the final slide is
+         not stranded half-scrolled. */
+      scroll-padding-left: 0;
     }
   }
 
   .review {
     display: flex;
     flex-direction: column;
+    scroll-snap-align: start;
     padding: 1.75rem;
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
@@ -108,19 +232,24 @@ const initials = (author: string) =>
   }
 
   .review-stars {
+    display: inline-flex;
+    gap: 2px;
     color: var(--color-brick);
-    font-size: var(--text-small);
-    letter-spacing: 0.15em;
+  }
+
+  .review-star {
+    fill: currentColor;
   }
 
   .review-quote {
     flex: 1;
-    margin: 1rem 0 0;
+    margin: 1.125rem 0 0;
   }
 
   .review-quote p {
-    font-size: var(--text-body);
+    font-size: 1.0625rem;
     line-height: 1.6;
+    text-wrap: pretty;
   }
 
   .review-quote p::before {
@@ -140,19 +269,79 @@ const initials = (author: string) =>
     border-top: 1px solid var(--color-rule);
   }
 
+  /* Rounded, with a soft ring rather than a hard border. */
   .review-avatar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 2.875rem;
+    height: 2.875rem;
     flex: none;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-sm);
+    border-radius: 999px;
     background-color: var(--color-paper);
+    box-shadow:
+      inset 0 0 0 1px rgb(22 33 31 / 0.08),
+      0 1px 2px rgb(22 33 31 / 0.06),
+      0 6px 14px -8px rgb(22 33 31 / 0.24);
     font-size: var(--text-small);
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    color: var(--color-forest);
+  }
+
+  .review-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .review-author {
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .review-context {
+    font-size: 0.6875rem;
+    color: var(--color-ink-55);
+  }
+
+  /* ------------------------------------------------------------ Progress */
+  .reviews-progress {
+    position: relative;
+    height: 2px;
+    background-color: var(--color-limestone-deep);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .reviews-progress-bar {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    display: block;
+    width: 25%;
+    background-color: var(--color-forest);
+    border-radius: 999px;
+    transition:
+      width var(--duration-base) var(--ease-out),
+      left var(--duration-base) var(--ease-out);
+  }
+
+  /* ---------------------------------------------------------------- Foot */
+  .reviews-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .reviews-note {
+    max-width: 46ch;
+    font-size: var(--text-small);
+    color: var(--color-ink-55);
   }
 
   .section-link {
@@ -166,3 +355,61 @@ const initials = (author: string) =>
     text-underline-offset: 4px;
   }
 </style>
+
+<script>
+  const rail = document.querySelector<HTMLElement>('[data-carousel-rail]');
+  const controls = document.querySelector<HTMLElement>('[data-carousel-controls]');
+  const progress = document.querySelector<HTMLElement>('[data-carousel-progress]');
+  const bar = document.querySelector<HTMLElement>('[data-carousel-bar]');
+  const current = document.querySelector<HTMLElement>('[data-carousel-current]');
+  const prev = document.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+  const next = document.querySelector<HTMLButtonElement>('[data-carousel-next]');
+
+  if (rail && controls && progress && bar && current && prev && next) {
+    const slides = [...rail.querySelectorAll<HTMLElement>('[data-carousel-slide]')];
+
+    /* The controls are hidden in the markup and only revealed once we know
+       the rail actually overflows — no dead buttons on a wide screen. */
+    const overflows = () => rail.scrollWidth - rail.clientWidth > 4;
+
+    const step = () => {
+      const first = slides[0];
+      const second = slides[1];
+      if (!first) return rail.clientWidth;
+      return second ? second.offsetLeft - first.offsetLeft : first.offsetWidth;
+    };
+
+    const update = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      const ratio = max > 0 ? rail.scrollLeft / max : 0;
+      const visible = Math.max(rail.clientWidth / rail.scrollWidth, 0.12);
+
+      bar.style.width = `${visible * 100}%`;
+      bar.style.left = `${ratio * (100 - visible * 100)}%`;
+
+      const index = Math.round(rail.scrollLeft / step());
+      current.textContent = String(Math.min(index + 1, slides.length)).padStart(2, '0');
+
+      prev.disabled = rail.scrollLeft <= 4;
+      next.disabled = rail.scrollLeft >= max - 4;
+    };
+
+    const reveal = () => {
+      const show = overflows();
+      controls.hidden = !show;
+      progress.hidden = !show;
+      if (show) update();
+    };
+
+    prev.addEventListener('click', () =>
+      rail.scrollBy({ left: -step(), behavior: 'smooth' }),
+    );
+    next.addEventListener('click', () =>
+      rail.scrollBy({ left: step(), behavior: 'smooth' }),
+    );
+
+    rail.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', reveal);
+    reveal();
+  }
+</script>

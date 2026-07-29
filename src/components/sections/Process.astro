@@ -1,46 +1,47 @@
 ---
 import Section from '../ui/Section.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
 
-const steps = [
+/**
+ * Build process.
+ *
+ * Eight tiles, each with its own mark. The icon does the work the numbering
+ * cannot: it tells you at a glance which stage is paperwork, which is choosing
+ * things, and which is someone on site. A thin connector runs between tiles in
+ * a row so the set reads as a sequence rather than a grid of facts.
+ */
+const steps: { icon: IconName; title: string; body: string }[] = [
   {
-    title: 'Enquiry and consultation',
-    body: 'We look at your block, your budget and which designs actually fit.',
+    icon: 'message-circle',
+    title: 'Consultation',
+    body: 'Your block, your budget, what fits',
   },
+  { icon: 'file-text', title: 'Tender', body: 'Full fixed price, 5% deposit' },
+  { icon: 'palette', title: 'Colours', body: 'Finishes, lighting, electrical' },
   {
-    title: 'Tender',
-    body: 'A full fixed price, including site costs. 5% deposit on acceptance.',
-  },
-  {
-    title: 'Colour selection',
-    body: 'You choose finishes, colours, lighting and electrical with a design consultant.',
-  },
-  {
+    icon: 'pen-line',
     title: 'Contract',
-    body: 'HIA plain-English contract, plans and the energy assessment. Signed within 180 days of your deposit.',
+    body: 'HIA plain-English, plus energy assessment',
   },
   {
+    icon: 'file-check',
     title: 'Permits',
-    body: 'Planning approval where the council requires it, then the building permit.',
+    body: 'Planning where required, then building',
   },
+  { icon: 'hard-hat', title: 'Construction', body: 'With a supervisor you can call' },
+  { icon: 'key', title: 'Handover', body: 'Keys, landscaping already done' },
   {
-    title: 'Construction',
-    body: 'With a site supervisor you can call directly.',
-  },
-  {
-    title: 'Handover',
-    body: 'Keys, and a completed home with the landscaping and fencing already done.',
-  },
-  {
+    icon: 'wrench',
     title: 'Maintenance',
-    body: 'Six months from settlement, then a licensed inspection at twelve.',
+    body: 'Six months, then a twelve-month inspection',
   },
 ];
 ---
 
-<Section id="build-process" band="surface" labelledby="process-heading">
+<Section id="build-process" band="paper" labelledby="process-heading">
   <div class="max-w-prose">
-    <Eyebrow>From enquiry to keys</Eyebrow>
+    <Eyebrow>Enquiry to keys</Eyebrow>
     <h2 id="process-heading" class="mt-4 text-h2">
       Eight steps. You'll know which one you're on.
     </h2>
@@ -50,9 +51,14 @@ const steps = [
     {
       steps.map((step, i) => (
         <li class="step" data-reveal>
-          <p class="num step-number">{String(i + 1).padStart(2, '0')}</p>
-          <p class="mt-3 text-h3">{step.title}</p>
-          <p class="mt-2 text-small text-ink-70">{step.body}</p>
+          <div class="step-mark">
+            <span class="step-icon">
+              <Icon name={step.icon} size={20} />
+            </span>
+            <span class="num step-index">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <p class="step-title">{step.title}</p>
+          <p class="step-body">{step.body}</p>
         </li>
       ))
     }
@@ -63,7 +69,7 @@ const steps = [
   .steps {
     display: grid;
     gap: 1px;
-    margin: 3rem 0 0;
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
     padding: 0;
     list-style: none;
     background-color: var(--color-rule);
@@ -72,26 +78,95 @@ const steps = [
     overflow: hidden;
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 560px) {
     .steps {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (min-width: 1024px) {
     .steps {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
   .step {
-    padding: 1.5rem;
+    position: relative;
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
     background-color: var(--color-surface);
   }
 
-  .step-number {
+  .step-mark {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper);
+    color: var(--color-forest);
+  }
+
+  .step-index {
     font-size: var(--text-small);
     font-weight: 500;
     color: var(--color-brick);
+  }
+
+  /* The connector — a hairline running out of each tile into the next, so a
+     row reads left to right as a sequence. Suppressed at the row end. */
+  .step::after {
+    content: '';
+    position: absolute;
+    top: calc(clamp(1.25rem, 2.5vw, 1.75rem) + 1.25rem);
+    right: -1px;
+    width: 1px;
+    height: 1px;
+  }
+
+  @media (min-width: 560px) {
+    .step::after {
+      right: calc(-1px - 0.5rem);
+      width: 1rem;
+      border-top: 1px dashed var(--color-rule-strong);
+    }
+
+    .step:nth-child(2n)::after {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .step:nth-child(2n)::after {
+      display: block;
+    }
+
+    .step:nth-child(4n)::after {
+      display: none;
+    }
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.1875rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .step-body {
+    margin-top: 0.375rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+    text-wrap: pretty;
   }
 </style>

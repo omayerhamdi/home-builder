@@ -1,20 +1,23 @@
 ---
-import { Picture } from 'astro:assets';
 import Section from '../ui/Section.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import DimensionLine from '../signature/DimensionLine.astro';
+import Icon, { type IconName } from '../ui/Icon.astro';
 import Button from '../ui/Button.astro';
-import interior from '../../assets/img/interiors/kitchen-pantry.jpg';
 
 /**
  * The thesis, made concrete.
  *
- * The worked example is the Corella 22 at Maplewood, and every figure in it
- * is verified: the land component is $350,000 and the two advertised prices
- * are $592,400 and $655,800, so the build and the turnkey difference fall out
- * of the arithmetic. We deliberately do not split site costs, landscaping,
- * fencing and driveway into separate dollar figures — no public source gives
- * those, and inventing them would break the one promise this page makes.
+ * Structured so it survives a five-second glance: the claim on the left, the
+ * receipt on the right, and three guarantees across the bottom in a row of
+ * equal tiles. A visitor who reads nothing but the three tile headings still
+ * leaves with the whole argument.
+ *
+ * Every figure in the worked example is verified — land $350,000 and the two
+ * advertised prices — so the build and the turnkey difference fall out of the
+ * arithmetic. We do not split site costs, landscaping, fencing and driveway
+ * into separate figures: no public source gives them, and inventing them
+ * would break the one promise this page makes.
  */
 
 const LAND = 350_000;
@@ -22,111 +25,64 @@ const SMARTSPECS_TOTAL = 592_400;
 const LUXETURNKEY_TOTAL = 655_800;
 
 const segments = [
+  { label: 'Land — contract with the developer', amount: LAND, land: true },
   {
-    label: 'Land — separate contract with the developer',
-    amount: LAND,
-    land: true,
-  },
-  {
-    label: 'Home, including fixed site costs and the slab',
+    label: 'Home, including fixed site costs',
     amount: SMARTSPECS_TOTAL - LAND,
     included: true,
   },
   {
-    label: 'Landscaping, fencing, driveway — LuxeTurnkey',
+    label: 'Landscaping, fencing, driveway',
     amount: LUXETURNKEY_TOTAL - SMARTSPECS_TOTAL,
     included: true,
   },
 ];
 
-const proofPoints = [
+const guarantees: { icon: IconName; title: string; body: string }[] = [
   {
-    title: 'Site costs are fixed, not "allowed for."',
-    body: 'Fixed site cost up to 400mm, on an engineered M-class waffle-pod slab. We do the soil test. Where the estate has supplied engineering plans and a plan of subdivision, the figure is locked.',
+    icon: 'shield-check',
+    title: 'Site costs fixed, not allowed for',
+    body: 'Fixed to 400mm on an engineered M-class slab. We arrange the soil test.',
   },
   {
-    title: 'Turnkey means turnkey.',
-    body: 'Front, side and rear landscaping. Half-share fencing. Exposed aggregate driveway, porch and alfresco. Letterbox and clothesline. You bring furniture.',
+    icon: 'key',
+    title: 'Turnkey means turnkey',
+    body: 'Landscaping, fencing, driveway, letterbox, clothesline. You bring furniture.',
   },
   {
-    title: 'Six months of maintenance, not three.',
-    body: 'Most builders cover you for 90 days after settlement. We cover you for six months, then inspect again at twelve.',
+    icon: 'wrench',
+    title: 'Six months of maintenance',
+    body: 'Most builders cover 90 days. We cover six, then inspect at twelve.',
   },
 ];
 ---
 
 <Section id="certainty" band="paper" labelledby="certainty-heading">
-  <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-    <div class="lg:col-span-7">
-      <Eyebrow>What "fixed price" actually means</Eyebrow>
-      <h2 id="certainty-heading" class="mt-4 max-w-[18ch] text-h2">
-        Most builders quote you a house. We quote you a finished home.
+  <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-6">
+      <Eyebrow>What fixed price means</Eyebrow>
+      <h2 id="certainty-heading" class="mt-4 max-w-[16ch] text-h2">
+        Most builders quote a house. We quote a finished home.
       </h2>
-
-      <div class="mt-6 flex max-w-prose flex-col gap-4 text-lead text-ink-70">
-        <p>
-          A quote that excludes site costs isn't a quote — it's an opening position. Ours
-          includes the slab, the site works, the landscaping front and back, the fencing,
-          the letterbox, the clothesline and the driveway. When we hand over the keys
-          there is nothing left to buy and nothing left to organise.
-        </p>
-        <p>
-          We hold that price for up to <span class="num">18</span> months from signing to the
-          start of construction. If material costs move in that window, they move on us.
-        </p>
-      </div>
-
-      <div class="mt-10 grid gap-8 sm:grid-cols-12 sm:gap-10">
-        <figure class="m-0 sm:col-span-5">
-          <Picture
-            src={interior}
-            alt="Kitchen in a completed DBN home — stone benchtop, 900mm upright oven, canopy rangehood and a walk-in pantry"
-            formats={['avif']}
-            fallbackFormat="webp"
-            widths={[320, 500, 700]}
-            sizes="(min-width: 1024px) 22vw, (min-width: 640px) 34vw, 100vw"
-            quality={58}
-            class="w-full rounded-md border border-rule object-cover"
-            style="aspect-ratio: 4 / 5"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption class="mt-3 text-small text-ink-55">
-            A completed kitchen at the Monarch display, Deanside.
-          </figcaption>
-        </figure>
-
-        <ol class="m-0 flex list-none flex-col gap-6 p-0 sm:col-span-7" data-reveal-group>
-          {
-            proofPoints.map((point, i) => (
-              <li
-                class="border-t border-rule pt-5 first:border-t-0 first:pt-0"
-                data-reveal
-              >
-                <p class="flex gap-3 text-h3">
-                  <span class="num shrink-0 text-lead text-ink-55">0{i + 1}</span>
-                  <span>{point.title}</span>
-                </p>
-                <p class="mt-2 pl-8 text-body text-ink-70">{point.body}</p>
-              </li>
-            ))
-          }
-        </ol>
-      </div>
+      <p class="mt-6 max-w-prose text-lead text-ink-70">
+        A quote without site costs is an opening position, not a price. Ours includes the
+        slab, the site works, the landscaping, the fencing and the driveway — and we hold
+        it for <span class="num">18</span> months.
+      </p>
     </div>
 
-    <div class="lg:col-span-5">
+    <div class="lg:col-span-6">
       <div class="breakdown">
-        <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
-          A real package, opened up
-        </p>
-        <p class="mt-3 text-h3">Corella 22 — Lot 1203, Maplewood Estate</p>
-        <p class="num mt-1 text-small text-ink-55">
-          Kinane Street, Melton South VIC 3338 · 400 m² · title anticipated Q2 2026
-        </p>
+        <div class="breakdown-head">
+          <p class="breakdown-eyebrow">A real package, opened up</p>
+          <p class="mt-2 text-h3">Corella 22 — Lot 1203, Maplewood</p>
+          <p class="num mt-1 text-small text-ink-55">
+            Kinane Street, Melton South · 400 m² · title Q2 2026
+          </p>
+        </div>
 
         <DimensionLine
-          class="mt-8"
+          class="mt-7"
           variant="expanded"
           segments={segments}
           total={LUXETURNKEY_TOTAL}
@@ -134,14 +90,13 @@ const proofPoints = [
         />
 
         <p class="mt-6 border-t border-rule pt-5 text-small text-ink-70">
-          The same home on the SmartSpecs specification is{' '}
-          <span class="num font-medium text-ink">$592,400</span>. Utility connection and
-          account-opening fees are not included. Land is sold under a separate contract
-          with the estate developer.
+          The same home on SmartSpecs is{' '}
+          <span class="num font-medium text-ink">$592,400</span>. Land is sold under a
+          separate contract with the developer.
         </p>
 
         <Button
-          class="mt-6"
+          class="mt-2"
           href="/house-and-land/lot-1203-maplewood-melton-south/"
           variant="tertiary"
           icon="arrow-right"
@@ -151,21 +106,97 @@ const proofPoints = [
       </div>
     </div>
   </div>
+
+  <ul class="guarantees" data-reveal-group>
+    {
+      guarantees.map((item, i) => (
+        <li class="guarantee" data-reveal>
+          <div class="guarantee-mark">
+            <Icon name={item.icon} size={22} />
+            <span class="num guarantee-index">0{i + 1}</span>
+          </div>
+          <p class="guarantee-title">{item.title}</p>
+          <p class="guarantee-body">{item.body}</p>
+        </li>
+      ))
+    }
+  </ul>
 </Section>
 
 <style>
   .breakdown {
-    position: sticky;
-    top: calc(var(--spacing-header-lg) + 1.5rem);
     padding: clamp(1.5rem, 3vw, 2.25rem);
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
   }
 
-  @media (max-width: 1023px) {
-    .breakdown {
-      position: static;
+  .breakdown-head {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .breakdown-eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-55);
+  }
+
+  /* Three equal tiles. Read the headings alone and the argument still lands. */
+  .guarantees {
+    display: grid;
+    gap: 1px;
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    padding: 0;
+    list-style: none;
+    background-color: var(--color-rule);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .guarantees {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+  }
+
+  .guarantee {
+    padding: clamp(1.5rem, 3vw, 2rem);
+    background-color: var(--color-surface);
+  }
+
+  .guarantee-mark {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-forest);
+  }
+
+  .guarantee-index {
+    font-size: var(--text-small);
+    color: var(--color-ink-55);
+  }
+
+  .guarantee-title {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.1875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.008em;
+    text-wrap: balance;
+  }
+
+  .guarantee-body {
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
   }
 </style>

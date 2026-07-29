@@ -1,0 +1,183 @@
+---
+import { Picture } from 'astro:assets';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
+import { facadeImage } from '../../lib/images';
+
+/**
+ * Façades.
+ *
+ * A real product feature on the client's current site that was missing from
+ * the first pass. It sits directly after the designs grid because it answers
+ * the question that grid raises: the floorplan is fixed, so what can I change?
+ *
+ * These four are the client's own renders. Pricing is deliberately not
+ * mentioned — the Clauses & Provisions refer to "specific facade pricing", so
+ * at least some are priced options and we will not imply otherwise.
+ */
+const facades = [
+  {
+    key: 'facade-modern',
+    name: 'Modern',
+    note: 'Render and feature blade',
+    alt: 'The Modern façade — rendered feature wall, timber-look garage door and grey brickwork',
+  },
+  {
+    key: 'facade-rise',
+    name: 'Rise',
+    note: 'White render, low roof',
+    alt: 'The Rise façade — double garage, white render and a low charcoal roof behind native landscaping',
+  },
+  {
+    key: 'facade-freedom',
+    name: 'Freedom',
+    note: 'Brick and render mix',
+    alt: 'The Freedom façade — single garage, brick and render mix with a recessed entry under a dark tiled roof',
+  },
+  {
+    key: 'facade-fresh',
+    name: 'Fresh',
+    note: 'Dark brick, tall window',
+    alt: 'The Fresh façade — double garage in dark brick with a full-height living room window and a charcoal roof',
+  },
+];
+---
+
+<Section id="facades" band="paper" labelledby="facades-heading">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div class="max-w-prose">
+      <Eyebrow>
+        <span class="num">3–4</span> façades per design
+      </Eyebrow>
+      <h2 id="facades-heading" class="mt-4 text-h2">Same floorplan. Different street.</h2>
+      <p class="mt-5 text-lead text-ink-70">
+        Pick the front that suits you and the estate's design guidelines.
+      </p>
+    </div>
+
+    <a class="section-link" href="/inclusions/#facades">
+      See the façade range
+      <Icon name="arrow-right" size={18} />
+    </a>
+  </div>
+
+  <ul class="facades" data-reveal-group>
+    {
+      facades.map((facade) => (
+        <li class="facade" data-reveal>
+          <Picture
+            src={facadeImage(facade.key)}
+            alt={facade.alt}
+            formats={['avif']}
+            fallbackFormat="webp"
+            widths={[320, 520, 700]}
+            sizes="(min-width: 1024px) 24vw, (min-width: 640px) 46vw, 82vw"
+            quality={58}
+            class="facade-image"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="facade-caption">
+            <p class="facade-name">{facade.name}</p>
+            <p class="facade-note">{facade.note}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<style>
+  /* A scrolling row on phones, a four-up grid from 640px. The row keeps the
+     images large enough to read rather than shrinking four into a phone. */
+  .facades {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    gap: 1rem;
+    margin: 2.5rem 0 0;
+    padding: 0 var(--spacing-gutter) 0.5rem;
+    margin-inline: calc(var(--spacing-gutter) * -1);
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+  }
+
+  @media (min-width: 640px) {
+    .facades {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
+  }
+
+  .facade {
+    scroll-snap-align: start;
+    overflow: hidden;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color var(--duration-base) var(--ease-out);
+  }
+
+  .facade:hover {
+    border-color: var(--color-rule-strong);
+  }
+
+  .facade-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform var(--duration-image) var(--ease-out);
+  }
+
+  .facade:hover .facade-image {
+    transform: scale(1.03);
+  }
+
+  .facade-caption {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .facade-name {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+
+  .facade-note {
+    font-size: var(--text-eyebrow);
+    color: var(--color-ink-55);
+    text-align: right;
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .section-link :global(svg) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .section-link:hover :global(svg) {
+    transform: translateX(3px);
+  }
+</style>

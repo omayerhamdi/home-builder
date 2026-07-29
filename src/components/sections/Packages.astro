@@ -4,77 +4,79 @@ import Section from '../ui/Section.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import Icon from '../ui/Icon.astro';
 import PackageCard from '../cards/PackageCard.astro';
-import { formatAud, packageFromPrice } from '../../lib/format';
-import { site } from '../../lib/site';
+import { packageFromPrice } from '../../lib/format';
 
-const [packages, designs, estates, regions] = await Promise.all([
+const [packages, designs, estates] = await Promise.all([
   getCollection('packages'),
   getCollection('designs'),
   getCollection('estates'),
-  getCollection('regions'),
 ]);
 
 const designName = new Map(designs.map((d) => [d.data.id, d.data.name]));
-const estateName = new Map(estates.map((e) => [e.data.id, e.data.name]));
+const rows = packages.map((entry) => entry.data);
 
-const PER_REGION = 3;
-const DEFAULT_REGION = 'melbourne-west';
+/* Estates that actually hold packages, busiest first. The tab set is derived
+   from the inventory — an estate with nothing in it never appears. */
+const estateTabs = estates
+  .map((entry) => ({
+    ...entry.data,
+    count: rows.filter((p) => p.estate === entry.data.id).length,
+  }))
+  .filter((e) => e.count > 0)
+  .sort((a, b) => b.count - a.count);
 
-/* Verified records first, then cheapest — so the cards a visitor sees first
-   are the ones whose numbers came from a public listing. */
-const orderedRegions = [...regions].sort((a, b) => a.data.order - b.data.order);
+const estateName = new Map(estateTabs.map((e) => [e.id, e.name]));
+const DEFAULT_ESTATE = estateTabs[0]!.id;
+const PER_ESTATE = 3;
 
-const featured = orderedRegions.flatMap((region) =>
-  packages
-    .map((entry) => entry.data)
-    .filter((pkg) => pkg.region === region.data.id)
+/* Verified records first, then cheapest — the cards a visitor sees first are
+   the ones whose numbers came from a public listing. */
+const featured = estateTabs.flatMap((estate) =>
+  rows
+    .filter((pkg) => pkg.estate === estate.id)
     .sort((a, b) => {
       if (a.verified !== b.verified) return a.verified ? -1 : 1;
       return packageFromPrice(a) - packageFromPrice(b);
     })
-    .slice(0, PER_REGION),
+    .slice(0, PER_ESTATE),
 );
-
-const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.data)));
 ---
 
-<Section id="house-and-land" band="paper" labelledby="packages-heading">
+<Section id="house-and-land" band="surface" labelledby="packages-heading">
   <div class="flex flex-wrap items-end justify-between gap-6">
     <div class="max-w-prose">
       <Eyebrow>Available now</Eyebrow>
       <h2 id="packages-heading" class="mt-4 text-h2">
-        Land and a fixed-price home, in one contract price.
+        Land and a fixed-price home, in one number.
       </h2>
       <p class="mt-5 text-lead text-ink-70">
-        <span class="num">{site.packagesTotal}</span> packages across Melbourne, Geelong, Ballarat
-        and Gippsland — from{' '}
-        <span class="num">{formatAud(fromPrice)}</span>. Every one shows the land price
-        and the build price separately, so you can see exactly what you're paying for.
+        Every package shows the land price and the build price separately.
       </p>
     </div>
 
     <a class="section-link" href="/house-and-land/">
-      View all <span class="num">{site.packagesTotal}</span> packages
+      View all packages
       <Icon name="arrow-right" size={18} />
     </a>
   </div>
 
   <div
     class="tabs"
-    data-regions-filter
+    data-estates-filter
     role="group"
-    aria-label="Filter packages by region"
+    aria-label="Filter packages by estate"
   >
     {
-      orderedRegions.map((region) => (
+      estateTabs.map((estate) => (
         <button
           class="tab"
           type="button"
-          data-filter-value={region.data.id}
-          data-filter-label={region.data.name}
-          aria-pressed={region.data.id === DEFAULT_REGION ? 'true' : 'false'}
+          data-filter-value={estate.id}
+          data-filter-label={estate.name}
+          aria-pressed={estate.id === DEFAULT_ESTATE ? 'true' : 'false'}
         >
-          {region.data.name}
+          <span class="tab-name">{estate.name}</span>
+          <span class="num tab-suburb">{estate.suburb}</span>
         </button>
       ))
     }
@@ -92,16 +94,16 @@ const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.dat
         <PackageCard
           pkg={pkg}
           designName={designName.get(pkg.design) ?? pkg.design}
-          estateName={pkg.estate ? (estateName.get(pkg.estate) ?? null) : null}
-          hidden={pkg.region !== DEFAULT_REGION}
+          estateName={estateName.get(pkg.estate) ?? null}
+          hidden={pkg.estate !== DEFAULT_ESTATE}
         />
       ))
     }
   </div>
 
   <p class="mt-8 max-w-prose text-small text-ink-55">
-    Price correct at publication. Subject to change. Land is sold under a separate
-    contract with the estate developer.
+    Correct at publication. Subject to change. Land is sold under a separate contract with
+    the developer.
   </p>
 </Section>
 
@@ -113,19 +115,21 @@ const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.dat
     padding-bottom: 0.5rem;
     overflow-x: auto;
     scrollbar-width: thin;
-    /* On phones the region set scrolls rather than wrapping to three rows. */
     scroll-snap-type: x proximity;
   }
 
   .tab {
     flex: none;
-    min-height: 44px;
-    padding-inline: 1.125rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    min-height: 52px;
+    padding: 0.5rem 1.125rem;
     border: 1px solid var(--color-rule-strong);
     border-radius: var(--radius-md);
     background-color: transparent;
-    font-size: var(--text-small);
-    font-weight: 600;
+    text-align: left;
     white-space: nowrap;
     cursor: pointer;
     scroll-snap-align: start;
@@ -133,6 +137,17 @@ const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.dat
       background-color var(--duration-micro) var(--ease-out),
       color var(--duration-micro) var(--ease-out),
       border-color var(--duration-micro) var(--ease-out);
+  }
+
+  .tab-name {
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .tab-suburb {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-55);
   }
 
   .tab:hover {
@@ -143,6 +158,10 @@ const fromPrice = Math.min(...packages.map((entry) => packageFromPrice(entry.dat
     background-color: var(--color-forest);
     border-color: var(--color-forest);
     color: var(--color-surface);
+  }
+
+  .tab[aria-pressed='true'] .tab-suburb {
+    color: rgb(255 255 255 / 0.7);
   }
 
   .section-link {

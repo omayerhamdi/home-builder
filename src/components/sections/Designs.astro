@@ -5,7 +5,6 @@ import Eyebrow from '../ui/Eyebrow.astro';
 import Icon from '../ui/Icon.astro';
 import DesignCard from '../cards/DesignCard.astro';
 import { packageFromPrice } from '../../lib/format';
-import { site } from '../../lib/site';
 
 const designs = (await getCollection('designs')).map((entry) => entry.data);
 const packages = (await getCollection('packages')).map((entry) => entry.data);
@@ -18,6 +17,7 @@ for (const pkg of packages) {
   if (current === undefined || price < current) fromPriceByDesign.set(pkg.design, price);
 }
 
+const seriesCount = new Set(designs.map((d) => d.series)).size;
 const frontages = [...new Set(designs.map((d) => d.frontage))].sort((a, b) => a - b);
 
 /**
@@ -40,20 +40,19 @@ const VISIBLE = 6;
   <div class="flex flex-wrap items-end justify-between gap-6">
     <div class="max-w-prose">
       <Eyebrow>
-        <span class="num">{site.designsTotal}</span> designs · <span class="num">8.5</span
-        >m to <span class="num">16</span>m frontage
+        {`${seriesCount} series · ${designs.length} designs`}
       </Eyebrow>
       <h2 id="designs-heading" class="mt-4 text-h2">
-        Start with your block, not with a brochure.
+        Start with your block, not a brochure.
       </h2>
       <p class="mt-5 text-lead text-ink-70">
-        Every design is built around a frontage width. Tell us how wide your block is and
-        the list gets short fast.
+        Every design is built around a frontage width. Tell us yours and the list gets
+        short.
       </p>
     </div>
 
     <a class="section-link" href="/home-designs/">
-      View all <span class="num">{site.designsTotal}</span> designs
+      View all designs
       <Icon name="arrow-right" size={18} />
     </a>
   </div>
@@ -64,9 +63,9 @@ const VISIBLE = 6;
     role="group"
     aria-label="Filter designs by frontage"
   >
-    <button class="chip" type="button" data-filter-value="all" aria-pressed="true">
-      All
-    </button>
+    <button class="chip" type="button" data-filter-value="all" aria-pressed="true"
+      >All</button
+    >
     {
       frontages.map((frontage) => (
         <button

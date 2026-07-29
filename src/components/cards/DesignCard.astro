@@ -144,11 +144,11 @@ const { design, fromPrice, hidden } = Astro.props;
     margin-top: 1.25rem;
   }
 
-  .card-arrow {
+  .card :global(.card-arrow) {
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .card:hover .card-arrow {
+  .card:hover :global(.card-arrow) {
     transform: translateX(3px);
   }
 </style>

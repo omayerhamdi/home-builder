@@ -81,12 +81,12 @@ const Tag = href ? 'a' : 'button';
     width: 100%;
   }
 
-  .btn-icon {
+  .btn :global(.btn-icon) {
     flex: none;
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .btn:hover .btn-icon {
+  .btn:hover :global(.btn-icon) {
     transform: translateX(3px);
   }
 

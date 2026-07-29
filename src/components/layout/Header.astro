@@ -2,30 +2,29 @@
 import Logo from './Logo.astro';
 import MobileNav from './MobileNav.astro';
 import Icon from '../ui/Icon.astro';
-import DisclosureIcon from '../ui/DisclosureIcon.astro';
 import { buildPrimaryNav } from '../../lib/nav';
 import { site } from '../../lib/site';
 
 /**
  * Site header.
  *
- * Above 1024px it is a horizontal bar with mega menus. Below that the
- * navigation moves into a drawer. On pages with a hero the bar starts
- * transparent and turns solid on scroll.
+ * Sticky rather than fixed, so it sits in normal flow and no page has to
+ * reserve space for it. On the homepage it is `tone="forest"` and sits flush
+ * against the hero's claim cell with no gap and no border — header and cell
+ * read as one dark block. Everywhere else it is a white bar with a hairline.
+ *
+ * Above 1024px the navigation is horizontal with mega menus; below that it
+ * moves into a drawer.
  */
 interface Props {
-  overHero?: boolean;
+  tone?: 'surface' | 'forest';
 }
 
-const { overHero = false } = Astro.props;
+const { tone = 'surface' } = Astro.props;
 const primaryNav = await buildPrimaryNav();
 ---
 
-<header
-  class="site-header fixed inset-x-0 top-0 z-50"
-  data-header
-  data-over-hero={overHero ? '' : undefined}
->
+<header class:list={['site-header', `tone-${tone}`]} data-header>
   <div class="header-bar">
     <div
       class="mx-auto flex h-header max-w-wide items-center gap-4 px-gutter lg:h-header-lg"
@@ -35,7 +34,7 @@ const primaryNav = await buildPrimaryNav();
         class="header-logo shrink-0 rounded-sm"
         aria-label={`${site.name} — home`}
       >
-        <Logo height={32} class="lg:!h-[38px]" />
+        <Logo height={32} loading="eager" class="lg:!h-[38px]" />
       </a>
 
       <nav aria-label="Primary" class="header-nav">
@@ -52,7 +51,7 @@ const primaryNav = await buildPrimaryNav();
                     data-nav-trigger
                   >
                     {item.label}
-                    <DisclosureIcon size={14} />
+                    <Icon name="chevron-down" size={15} class="nav-chevron" />
                   </button>
 
                   <div id={`mega-${i}`} class="mega" data-nav-panel hidden>
@@ -135,24 +134,28 @@ const primaryNav = await buildPrimaryNav();
   /* --------------------------------------------------------------------
      Bar
   -------------------------------------------------------------------- */
-  .header-bar {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tone-surface .header-bar {
     background-color: var(--color-surface);
     border-bottom: 1px solid var(--color-rule);
-    transition:
-      background-color var(--duration-base) var(--ease-out),
-      border-color var(--duration-base) var(--ease-out);
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-bar {
-    background-color: transparent;
-    border-color: rgb(255 255 255 / 0.14);
-  }
-
-  .site-header[data-over-hero]:not([data-solid]) {
+  /* Flush against the hero's claim cell — no border, no gap, one dark block. */
+  .tone-forest {
+    background-color: var(--color-forest);
     color: var(--color-surface);
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-logo :global(img) {
+  .tone-forest .header-bar {
+    background-color: var(--color-forest);
+  }
+
+  .tone-forest .header-logo :global(img) {
     filter: brightness(0) invert(1);
   }
 
@@ -173,7 +176,7 @@ const primaryNav = await buildPrimaryNav();
   .nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.3125rem;
     min-height: 44px;
     padding-inline: 0.75rem;
     border: 0;
@@ -190,6 +193,19 @@ const primaryNav = await buildPrimaryNav();
 
   .nav-link:hover {
     opacity: 0.72;
+  }
+
+  /* One chevron, rotated. Not two icons swapped — a single rotated mark is
+     what Elementor's nav widget renders, so this is the version that ports. */
+  .nav-link :global(.nav-chevron) {
+    flex: none;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .nav-item:hover .nav-link :global(.nav-chevron),
+  .nav-item:focus-within .nav-link :global(.nav-chevron),
+  .nav-link[aria-expanded='true'] :global(.nav-chevron) {
+    transform: rotate(180deg);
   }
 
   .nav-item {
@@ -245,12 +261,12 @@ const primaryNav = await buildPrimaryNav();
     }
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-cta {
+  .tone-forest .header-cta {
     background-color: var(--color-surface);
     color: var(--color-forest);
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-cta:hover {
+  .tone-forest .header-cta:hover {
     background-color: var(--color-limestone);
   }
 
@@ -266,7 +282,7 @@ const primaryNav = await buildPrimaryNav();
     cursor: pointer;
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-toggle {
+  .tone-forest .header-toggle {
     border-color: rgb(255 255 255 / 0.35);
   }
 
@@ -277,8 +293,7 @@ const primaryNav = await buildPrimaryNav();
   }
 
   /* --------------------------------------------------------------------
-     Mega menu
-     Columns are separated by real hairlines and each heading sits on its own
+     Mega menu — columns separated by real hairlines, each heading on its own
      rule, so two lists side by side can never read as one.
   -------------------------------------------------------------------- */
   .mega {
@@ -365,7 +380,6 @@ const primaryNav = await buildPrimaryNav();
     letter-spacing: 0.02em;
   }
 
-  /* Promo — a distinct surface, not a fourth column of links. */
   .mega-promo {
     position: relative;
     display: flex;
@@ -403,12 +417,12 @@ const primaryNav = await buildPrimaryNav();
     text-underline-offset: 4px;
   }
 
-  .mega-promo:hover .mega-promo-cta :global(svg) {
-    transform: translateX(3px);
-  }
-
   .mega-promo-cta :global(svg) {
     transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .mega-promo:hover .mega-promo-cta :global(svg) {
+    transform: translateX(3px);
   }
 
   .mega-promo-hit {

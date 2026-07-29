@@ -1,16 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import Icon from '../ui/Icon.astro';
+import CornerTick from '../ui/CornerTick.astro';
 import { formatAud, packageFromPrice } from '../../lib/format';
 
 /**
- * Package finder.
+ * Package finder — cell C of the hero grid.
  *
- * Lifted out of the hero and given its own band. The hero already carries a
- * claim, a sentence and two buttons; a four-field form on top of that is one
- * job too many for a single screen. Here it gets room, a real label and a
- * live count beside it — and it becomes the seam between the promise and the
- * proof rather than clutter inside the promise.
+ * A card, not a band: it sits inside the hero's site-plan grid under the claim,
+ * so the first screen carries the promise and the tool for acting on it without
+ * either one crowding the other.
  *
  * Every option and every number is derived from the data.
  */
@@ -39,72 +38,65 @@ const budgetOptions = [
 ];
 ---
 
-<section id="find-a-package" class="finder-band" aria-labelledby="finder-heading">
-  <div class="mx-auto max-w-content px-gutter">
-    <div class="finder">
-      <div class="finder-head">
-        <p class="finder-eyebrow" id="finder-heading">Find a package</p>
-        <p class="finder-count num">
-          {rows.length} available · from {formatAud(fromPrice)}
-        </p>
-      </div>
+<div class="finder" id="find-a-package">
+  <CornerTick tone="light" />
 
-      <form class="finder-form" data-package-finder>
-        <div class="finder-field">
-          <label for="finder-beds">Bedrooms</label>
-          <select id="finder-beds" name="beds">
-            <option value="">Any</option>
-            {bedroomOptions.map((beds) => <option value={beds}>{beds} bedrooms</option>)}
-          </select>
-        </div>
-
-        <div class="finder-field">
-          <label for="finder-price">Budget</label>
-          <select id="finder-price" name="price">
-            <option value="">Any</option>
-            {
-              budgetOptions.map((option) => (
-                <option value={option.value}>{option.label}</option>
-              ))
-            }
-          </select>
-        </div>
-
-        <div class="finder-field">
-          <label for="finder-estate">Estate</label>
-          <select id="finder-estate" name="estate">
-            <option value="">Any estate</option>
-            {
-              estateOptions.map((estate) => (
-                <option value={estate.id}>
-                  {estate.name}, {estate.suburb}
-                </option>
-              ))
-            }
-          </select>
-        </div>
-
-        <button class="finder-submit" type="submit">
-          Find packages
-          <Icon name="arrow-right" size={18} />
-        </button>
-      </form>
-    </div>
+  <div class="finder-head">
+    <p class="finder-eyebrow" id="finder-heading">Find a package</p>
+    <p class="finder-count num">
+      {rows.length} available · from {formatAud(fromPrice)}
+    </p>
   </div>
-</section>
+
+  <form class="finder-form" data-package-finder aria-labelledby="finder-heading">
+    <div class="finder-field">
+      <label for="finder-beds">Bedrooms</label>
+      <select id="finder-beds" name="beds">
+        <option value="">Any</option>
+        {bedroomOptions.map((beds) => <option value={beds}>{beds} bedrooms</option>)}
+      </select>
+    </div>
+
+    <div class="finder-field">
+      <label for="finder-price">Budget</label>
+      <select id="finder-price" name="price">
+        <option value="">Any</option>
+        {
+          budgetOptions.map((option) => (
+            <option value={option.value}>{option.label}</option>
+          ))
+        }
+      </select>
+    </div>
+
+    <div class="finder-field">
+      <label for="finder-estate">Estate</label>
+      <select id="finder-estate" name="estate">
+        <option value="">Any estate</option>
+        {
+          estateOptions.map((estate) => (
+            <option value={estate.id}>
+              {estate.name}, {estate.suburb}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+
+    <button class="finder-submit" type="submit">
+      Find packages
+      <Icon name="arrow-right" size={18} />
+    </button>
+  </form>
+</div>
 
 <style>
-  .finder-band {
-    background-color: var(--color-limestone);
-    padding-block: clamp(1.75rem, 4vw, 2.75rem);
-  }
-
   .finder {
-    padding: clamp(1.25rem, 3vw, 2rem);
-    border: 1px solid var(--color-limestone-deep);
+    position: relative;
+    padding: clamp(1.25rem, 2.5vw, 1.5rem);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
-    box-shadow: var(--shadow-float);
+    color: var(--color-ink);
   }
 
   .finder-head {
@@ -112,9 +104,9 @@ const budgetOptions = [
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: 0.5rem 1rem;
-    padding-bottom: 1rem;
-    margin-bottom: 1.25rem;
+    gap: 0.375rem 1rem;
+    padding-bottom: 0.875rem;
+    margin-bottom: 1rem;
     border-bottom: 1px solid var(--color-rule);
   }
 
@@ -135,9 +127,13 @@ const budgetOptions = [
     gap: 0.75rem;
   }
 
-  @media (min-width: 640px) {
+  /* Inline from 768px; the button takes its own row until there is space for
+     it alongside. */
+  @media (min-width: 768px) {
     .finder-form {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: end;
+      gap: 0.875rem;
     }
 
     .finder-submit {
@@ -148,8 +144,6 @@ const budgetOptions = [
   @media (min-width: 1024px) {
     .finder-form {
       grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-      align-items: end;
-      gap: 1rem;
     }
 
     .finder-submit {
@@ -160,7 +154,7 @@ const budgetOptions = [
   .finder-field {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.3125rem;
   }
 
   .finder-field label {
@@ -169,8 +163,8 @@ const budgetOptions = [
   }
 
   .finder-field select {
-    height: 52px;
-    padding-inline: 0.875rem;
+    height: 48px;
+    padding-inline: 0.75rem;
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
     background-color: var(--color-paper);
@@ -189,8 +183,8 @@ const budgetOptions = [
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 52px;
-    padding-inline: 1.75rem;
+    height: 48px;
+    padding-inline: 1.5rem;
     border: 0;
     border-radius: var(--radius-md);
     background-color: var(--color-forest);
@@ -202,5 +196,15 @@ const budgetOptions = [
 
   .finder-submit:hover {
     background-color: var(--color-forest-lift);
+  }
+
+  /* Below 768px the hero cells lose their radii and gaps — the finder becomes
+     a plain white band rather than a card floating on a card. */
+  @media (max-width: 767px) {
+    .finder {
+      border-radius: 0;
+      padding-inline: var(--spacing-gutter);
+      padding-block: 1.5rem;
+    }
   }
 </style>

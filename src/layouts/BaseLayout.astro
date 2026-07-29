@@ -11,10 +11,11 @@ interface Props {
   description: string;
   /** 1200×630, per page type. Never the favicon. */
   ogImage?: string;
-  overHero?: boolean;
+  /** True on the homepage, where the header is the hero's forest masthead. */
+  masthead?: boolean;
 }
 
-const { title, description, ogImage = '/og/home.jpg', overHero = false } = Astro.props;
+const { title, description, ogImage = '/og/default.jpg', masthead = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImageUrl = new URL(ogImage, Astro.site).href;
@@ -130,9 +131,9 @@ const businessSchema = {
 
   <body>
     <SkipLink />
-    <Header overHero={overHero} />
+    <Header tone={masthead ? 'forest' : 'surface'} />
 
-    <main id="main" class:list={[!overHero && 'pt-header lg:pt-header-lg']}>
+    <main id="main">
       <slot />
     </main>
 

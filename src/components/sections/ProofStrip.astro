@@ -60,8 +60,7 @@ const items: Item[] = [
 
 <style>
   .proof {
-    background-color: var(--color-surface);
-    border-bottom: 1px solid var(--color-rule);
+    background-color: var(--color-limestone);
   }
 
   .proof-grid {
@@ -71,7 +70,7 @@ const items: Item[] = [
     margin: 0;
     padding: 0;
     list-style: none;
-    background-color: var(--color-rule);
+    background-color: var(--color-limestone-deep);
   }
 
   @media (min-width: 900px) {
@@ -84,11 +83,11 @@ const items: Item[] = [
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1rem, 2vw, 1.75rem);
-    background-color: var(--color-surface);
+    padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1rem, 2vw, 1.75rem);
+    background-color: var(--color-limestone);
   }
 
-  .proof-icon {
+  .proof-item :global(.proof-icon) {
     color: var(--color-forest);
     opacity: 0.65;
   }
@@ -122,7 +121,7 @@ const items: Item[] = [
     color: var(--color-brick);
   }
 
-  .proof-star {
+  .proof-stars :global(.proof-star) {
     fill: currentColor;
   }
 </style>

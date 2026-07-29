@@ -1,7 +1,6 @@
 ---
 import Logo from './Logo.astro';
 import Icon from '../ui/Icon.astro';
-import DisclosureIcon from '../ui/DisclosureIcon.astro';
 import { site } from '../../lib/site';
 import type { NavItem } from '../../lib/nav';
 
@@ -58,7 +57,7 @@ const { nav } = Astro.props;
                   data-acc-trigger
                 >
                   {item.label}
-                  <DisclosureIcon size={18} />
+                  <Icon name="chevron-down" size={18} class="mobile-nav-chevron" />
                 </button>
 
                 <div id={`mobile-acc-${i}`} class="mobile-nav-sub" data-acc-panel hidden>
@@ -250,6 +249,17 @@ const { nav } = Astro.props;
 
   .mobile-nav-group > .mobile-nav-link {
     border-bottom: 0;
+  }
+
+  /* One chevron, rotated — the same treatment as the desktop bar, and the
+     only version that ports to Elementor's nav widget. */
+  .mobile-nav-link :global(.mobile-nav-chevron) {
+    flex: none;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .mobile-nav-link[aria-expanded='true'] :global(.mobile-nav-chevron) {
+    transform: rotate(180deg);
   }
 
   .mobile-nav-sub {

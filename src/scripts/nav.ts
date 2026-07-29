@@ -1,5 +1,5 @@
 /**
- * Header behaviour: scroll state, desktop mega menus, mobile drawer.
+ * Header behaviour: desktop mega menus and the mobile drawer.
  *
  * No framework, no dependencies. The mega menu is hover-intent on pointer
  * devices and click everywhere else; the drawer traps focus and is inert when
@@ -13,7 +13,6 @@ const CLOSE_DELAY = 240;
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const header = document.querySelector<HTMLElement>('[data-header]');
 const backdrop = document.querySelector<HTMLElement>('[data-nav-backdrop]');
 const drawer = document.querySelector<HTMLElement>('[data-mobile-nav]');
 const drawerDialog = drawer?.querySelector<HTMLElement>('[data-nav-dialog]');
@@ -21,25 +20,6 @@ const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 
 const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
 const isDesktop = window.matchMedia('(min-width: 1024px)');
-
-/* ------------------------------------------------------------------ *
- * Header: solid once the page has scrolled past the hero's top edge.
- * ------------------------------------------------------------------ */
-
-if (header?.hasAttribute('data-over-hero')) {
-  /* A sentinel as tall as the header: while any part of it is still in view
-     the page is effectively at the top and the bar stays transparent. */
-  const sentinel = document.createElement('div');
-  sentinel.style.cssText =
-    'position:absolute;top:0;left:0;height:72px;width:1px;pointer-events:none;';
-  document.body.prepend(sentinel);
-
-  new IntersectionObserver(([entry]) => {
-    if (entry && !entry.isIntersecting) header.setAttribute('data-solid', '');
-    else if (!header.querySelector('[data-nav-panel]:not([hidden])'))
-      header.removeAttribute('data-solid');
-  }).observe(sentinel);
-}
 
 /* ------------------------------------------------------------------ *
  * Desktop mega menus
@@ -70,7 +50,6 @@ function openMega(item: MegaItem) {
   item.panel.hidden = false;
   item.trigger.setAttribute('aria-expanded', 'true');
   backdrop?.removeAttribute('hidden');
-  header?.setAttribute('data-solid', '');
   openItem = item;
 }
 
@@ -79,12 +58,7 @@ function closeMega(item: MegaItem, { restoreFocus = false } = {}) {
   item.trigger.setAttribute('aria-expanded', 'false');
   if (openItem === item) openItem = null;
 
-  if (!openItem) {
-    backdrop?.setAttribute('hidden', '');
-    if (header?.hasAttribute('data-over-hero') && window.scrollY < 8) {
-      header.removeAttribute('data-solid');
-    }
-  }
+  if (!openItem) backdrop?.setAttribute('hidden', '');
 
   if (restoreFocus) item.trigger.focus();
 }

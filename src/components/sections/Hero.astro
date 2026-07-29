@@ -1,42 +1,49 @@
 ---
 import { getImage } from 'astro:assets';
 import Button from '../ui/Button.astro';
+import CornerTick from '../ui/CornerTick.astro';
+import PackageFinder from './PackageFinder.astro';
 import posterWide from '../../assets/img/hero/hero-poster.jpg';
 import posterTall from '../../assets/img/hero/hero-poster-mobile.jpg';
 
 /**
- * Hero.
+ * Hero — a site plan, not a billboard.
  *
- * Two different compositions, not one shrunk down.
+ * The film no longer sits behind the words. It gets its own cell in a
+ * four-part grid, which fixes the headline contrast problem at source and lets
+ * the footage play at full fidelity with no overlay at all.
  *
- * Below 768px the film and the words are separated: a 4:5 media block, then a
- * solid forest panel carrying the headline. Nothing is set over moving video
- * on a phone, so the type is at full contrast and the copy does not have to
- * fight a scrim that changes brightness every frame.
+ *   ┌───────────────────────────┬──────────┐
+ *   │ A · Claim      cols 1–7   │ B · Video│
+ *   ├───────────────────────────┤ cols 8–12│
+ *   │ C · Finder     cols 1–7   │ rows 1–2 │
+ *   └───────────────────────────┴──────────┘
  *
- * From 768px up the film goes full-bleed behind the words, with a three-layer
- * scrim — a heavy left wash to seat the column, a base lift, and a soft
- * vignette. The poster is always the LCP element; the video is fetched only
- * above 768px, only when motion is allowed, and only on idle.
+ * The header above is the same forest as cell A and sits flush against it, so
+ * the two read as one dark block. The proof strip is a sibling section below,
+ * so it can go full-bleed.
+ *
+ * DOM order is the reading order at every width — no CSS `order` anywhere, so
+ * the screen-reader sequence never diverges from the visual one.
  */
 
 const wideAvif = await getImage({
   src: posterWide,
-  widths: [960, 1280, 1600, 2000],
+  widths: [640, 960, 1280, 1600],
   format: 'avif',
-  quality: 46,
+  quality: 50,
 });
 const wideWebp = await getImage({
   src: posterWide,
-  widths: [960, 1280, 1600, 2000],
+  widths: [640, 960, 1280, 1600],
   format: 'webp',
-  quality: 62,
+  quality: 64,
 });
 const tallAvif = await getImage({
   src: posterTall,
   widths: [540, 720, 1080],
   format: 'avif',
-  quality: 48,
+  quality: 50,
 });
 const tallWebp = await getImage({
   src: posterTall,
@@ -46,55 +53,15 @@ const tallWebp = await getImage({
 });
 
 const posterAlt =
-  'Aerial view of a DBN home on its lot in a Melbourne growth-corridor estate, driveway, fencing and landscaping complete';
+  'Open-plan dining and kitchen in a completed DBN display home — island bench, timber-look flooring and a stone splashback';
 ---
 
 <section class="hero" aria-labelledby="hero-heading">
-  <div class="hero-media">
-    <picture>
-      <source
-        media="(max-width: 767px)"
-        type="image/avif"
-        srcset={tallAvif.srcSet.attribute}
-        sizes="100vw"
-      />
-      <source
-        media="(max-width: 767px)"
-        type="image/webp"
-        srcset={tallWebp.srcSet.attribute}
-        sizes="100vw"
-      />
-      <source type="image/avif" srcset={wideAvif.srcSet.attribute} sizes="100vw" />
-      <source type="image/webp" srcset={wideWebp.srcSet.attribute} sizes="100vw" />
-      <img
-        class="hero-img"
-        src={wideWebp.src}
-        width={posterWide.width}
-        height={posterWide.height}
-        alt={posterAlt}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-      />
-    </picture>
+  <div class="hero-grid">
+    <!-- A · Claim -->
+    <div class="cell cell-claim">
+      <CornerTick tone="dark" />
 
-    <video
-      class="hero-video"
-      data-hero-video
-      data-src-mp4="/video/dbn-display-home.mp4"
-      data-src-webm="/video/dbn-display-home.webm"
-      muted
-      loop
-      playsinline
-      preload="none"
-      aria-hidden="true"
-      tabindex="-1"></video>
-
-    <div class="hero-scrim"></div>
-  </div>
-
-  <div class="hero-content">
-    <div class="hero-inner">
       <p class="hero-eyebrow num">Melbourne's west · Display open 7 days</p>
 
       <h1 id="hero-heading" class="hero-title">
@@ -110,30 +77,195 @@ const posterAlt =
         <Button href="/house-and-land/" tone="dark" icon="arrow-right">
           Browse packages
         </Button>
-        <Button href="/build-a-quote/" variant="glass" tone="dark">Build a quote</Button>
+        <Button href="/build-a-quote/" variant="secondary" tone="dark"
+          >Build a quote</Button
+        >
       </div>
+    </div>
+
+    <!-- B · Video -->
+    <div class="cell cell-video">
+      <CornerTick tone="dark" />
+
+      <picture>
+        <source
+          media="(max-width: 767px)"
+          type="image/avif"
+          srcset={tallAvif.srcSet.attribute}
+          sizes="100vw"
+        />
+        <source
+          media="(max-width: 767px)"
+          type="image/webp"
+          srcset={tallWebp.srcSet.attribute}
+          sizes="100vw"
+        />
+        <source
+          type="image/avif"
+          srcset={wideAvif.srcSet.attribute}
+          sizes="(min-width: 1024px) 42vw, 100vw"
+        />
+        <source
+          type="image/webp"
+          srcset={wideWebp.srcSet.attribute}
+          sizes="(min-width: 1024px) 42vw, 100vw"
+        />
+        <img
+          class="hero-img"
+          src={wideWebp.src}
+          width={posterWide.width}
+          height={posterWide.height}
+          alt={posterAlt}
+          loading="eager"
+          decoding="async"
+        />
+      </picture>
+
+      <video
+        class="hero-video"
+        data-hero-video
+        data-src-mp4="/video/dbn-display-home.mp4"
+        data-src-webm="/video/dbn-display-home.webm"
+        muted
+        loop
+        playsinline
+        preload="none"
+        aria-hidden="true"
+        tabindex="-1"></video>
+    </div>
+
+    <!-- C · Finder -->
+    <div class="cell cell-finder">
+      <PackageFinder />
     </div>
   </div>
 </section>
 
 <style>
-  /* --------------------------------------------------------------------
-     Mobile: media block, then a solid panel. No type over video.
-  -------------------------------------------------------------------- */
   .hero {
-    display: flex;
-    flex-direction: column;
     background-color: var(--color-forest);
-    color: var(--color-surface);
-    isolation: isolate;
   }
 
-  .hero-media {
+  .hero-grid {
+    display: grid;
+    gap: 16px;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding: 0 var(--spacing-gutter) var(--spacing-gutter);
+  }
+
+  /* The section may exceed the viewport on short screens — cells are never
+     compressed to force a fit. */
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: 1fr auto;
+      min-height: clamp(
+        600px,
+        calc(100svh - var(--spacing-header-lg) - var(--spacing-gutter)),
+        840px
+      );
+    }
+
+    .cell-claim {
+      grid-column: 1 / 8;
+      grid-row: 1;
+    }
+
+    .cell-video {
+      grid-column: 8 / -1;
+      grid-row: 1 / 3;
+    }
+
+    .cell-finder {
+      grid-column: 1 / 8;
+      grid-row: 2;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .hero-grid {
+      min-height: clamp(
+        560px,
+        calc(100svh - var(--spacing-header) - var(--spacing-gutter)),
+        880px
+      );
+    }
+  }
+
+  .cell {
     position: relative;
-    aspect-ratio: 4 / 5;
-    max-height: 46svh;
+    border-radius: var(--radius-md);
     overflow: hidden;
+  }
+
+  /* ------------------------------------------------------------- A · Claim */
+  .cell-claim {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(32px, 4vw, 56px);
+    background-color: var(--color-forest);
+    color: var(--color-surface);
+  }
+
+  .hero-eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-limestone);
+  }
+
+  .hero-title {
+    max-width: 15ch;
+    margin-top: 1.125rem;
+    /* 32px → 52px. Deliberately capped: above this it stops being a headline
+       and starts being a wall. */
+    font-size: clamp(2rem, 1.1rem + 2.8vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    max-width: 42ch;
+    margin-top: 1.25rem;
+    font-size: var(--text-lead);
+    opacity: 0.82;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .hero-actions :global(a) {
+    width: 100%;
+  }
+
+  @media (min-width: 480px) {
+    .hero-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .hero-actions :global(a) {
+      width: auto;
+    }
+  }
+
+  /* ------------------------------------------------------------- B · Video */
+  .cell-video {
     background-color: var(--color-forest-deep);
+    aspect-ratio: 16 / 9;
+  }
+
+  @media (min-width: 1024px) {
+    .cell-video {
+      aspect-ratio: auto;
+    }
   }
 
   .hero-img,
@@ -154,143 +286,41 @@ const posterAlt =
     opacity: 1;
   }
 
-  /* On mobile the scrim only has to blend the image into the panel below. */
-  .hero-scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgb(22 33 31 / 0.28) 0%,
-      rgb(22 33 31 / 0) 34%,
-      rgb(31 59 50 / 0.55) 88%,
-      var(--color-forest) 100%
-    );
+  /* ------------------------------------------------------------ C · Finder */
+  .cell-finder {
+    background-color: var(--color-surface);
   }
 
-  .hero-content {
-    padding-block: clamp(2rem, 7vw, 3rem) clamp(2.5rem, 8vw, 3.5rem);
-  }
-
-  .hero-inner {
-    max-width: var(--container-content);
-    margin-inline: auto;
-    padding-inline: var(--spacing-gutter);
-  }
-
-  .hero-eyebrow {
-    font-size: var(--text-eyebrow);
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-limestone);
-  }
-
-  .hero-title {
-    max-width: 15ch;
-    margin-top: 1rem;
-    font-size: var(--text-display);
-    line-height: 1.02;
-    letter-spacing: -0.02em;
-  }
-
-  .hero-sub {
-    max-width: 46ch;
-    margin-top: 1.25rem;
-    font-size: var(--text-lead);
-    color: rgb(255 255 255 / 0.86);
-  }
-
-  /* Full-width stacked buttons on the narrowest screens: a two-up row wraps
-     the label onto a second line, which reads as a mistake. */
-  .hero-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
-  }
-
-  .hero-actions :global(a) {
-    width: 100%;
-  }
-
-  @media (min-width: 480px) {
-    .hero-actions {
-      flex-direction: row;
-      flex-wrap: wrap;
+  /* --------------------------------------------------------------- Mobile
+     Gaps, radii and cell edges all go: at this width they add noise rather
+     than structure, and the three cells read better as one continuous run. */
+  @media (max-width: 767px) {
+    .hero-grid {
+      gap: 0;
+      padding: 0;
+      max-width: none;
     }
 
-    .hero-actions :global(a) {
-      width: auto;
-    }
-  }
-
-  /* --------------------------------------------------------------------
-     768px and up: film behind the words.
-  -------------------------------------------------------------------- */
-  @media (min-width: 768px) {
-    .hero {
-      position: relative;
-      justify-content: flex-end;
-      min-height: clamp(560px, 82svh, 800px);
-      padding-top: var(--spacing-header);
-      background-color: transparent;
+    .cell {
+      border-radius: 0;
     }
 
-    .hero-media {
-      position: absolute;
-      inset: 0;
+    .cell-claim {
+      padding: clamp(28px, 7vw, 40px) var(--spacing-gutter) clamp(32px, 8vw, 44px);
+    }
+
+    /* Height, not aspect-ratio: capping the height of an aspect-ratio box
+       shrinks its width too, which left a strip of forest beside the film. */
+    .cell-video {
       aspect-ratio: auto;
-      max-height: none;
-      z-index: -1;
-    }
-
-    /* Three layers. The left wash seats the copy column, the base lift seats
-       the section edge, and the vignette stops the corners going flat. */
-    .hero-scrim {
-      background:
-        linear-gradient(
-          100deg,
-          rgb(16 26 24 / 0.88) 0%,
-          rgb(16 26 24 / 0.72) 34%,
-          rgb(16 26 24 / 0.28) 68%,
-          rgb(16 26 24 / 0.12) 100%
-        ),
-        linear-gradient(to top, rgb(16 26 24 / 0.72) 0%, rgb(16 26 24 / 0) 46%),
-        radial-gradient(
-          120% 90% at 70% 30%,
-          rgb(16 26 24 / 0) 40%,
-          rgb(16 26 24 / 0.4) 100%
-        );
-    }
-
-    .hero-content {
-      display: flex;
-      flex: 1;
-      align-items: center;
-      padding-block: clamp(3rem, 7vw, 5rem);
-    }
-
-    .hero-inner {
-      width: 100%;
-    }
-
-    .hero-title {
-      max-width: 14ch;
-    }
-
-    .hero-sub {
-      max-width: 42ch;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .hero {
-      padding-top: var(--spacing-header-lg);
+      height: clamp(260px, 46svh, 420px);
     }
   }
 </style>
 
 <script>
+  /* The video is an enhancement over the poster: fetched only above 768px,
+     only when motion is allowed, and only on idle. */
   const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
   const wide = window.matchMedia('(min-width: 768px)');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');

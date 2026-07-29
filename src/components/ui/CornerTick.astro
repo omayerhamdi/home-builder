@@ -1,0 +1,62 @@
+---
+/**
+ * Architectural corner tick.
+ *
+ * The mark a draughtsman puts at the corner of a detail: a 14px L in hairline,
+ * with a short perpendicular terminator across the corner itself. It sits at
+ * the top-right of each hero cell and does the same job a setout mark does on
+ * a drawing — it says this rectangle is deliberate and measured.
+ *
+ * Decorative only.
+ */
+interface Props {
+  tone?: 'light' | 'dark';
+  class?: string;
+}
+
+const { tone = 'dark', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['tick', `tone-${tone}`, className]}
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d="M4 2H18"></path>
+  <path d="M18 2V16"></path>
+  <path d="M15.9 -0.1L20.1 4.1"></path>
+</svg>
+
+<style>
+  .tick {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .tick path {
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* `dark` means the tick sits on a dark cell. */
+  .tone-dark path {
+    stroke: rgb(255 255 255 / 0.25);
+  }
+
+  .tone-light path {
+    stroke: rgb(22 33 31 / 0.22);
+  }
+
+  @media (max-width: 767px) {
+    .tick {
+      display: none;
+    }
+  }
+</style>

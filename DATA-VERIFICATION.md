@@ -57,50 +57,57 @@ Also worth confirming across all thirteen:
 
 ## 3. House & land — `src/data/packages.json`
 
-**11 of 81 records are verified.** They are real, sourced from public listings, and their
-numbers are not altered anywhere in the build.
+### The aggregator listing is not used
 
-| Lot                | Location                  | Design      | Figures held                                                                        |
-| ------------------ | ------------------------- | ----------- | ----------------------------------------------------------------------------------- |
-| 1203 Kinane St     | Maplewood, Melton South   | Corella 22  | SmartSpecs $592,400 · LuxeTurnkey $655,800 · land $350,000 · 400 m² · title Q2 2026 |
-| 1007               | Aldo, Fraser Rise         | Ofarell 20  | $658,900                                                                            |
-| 930                | Aldo, Fraser Rise         | Corella 18  | $536,500 · LuxeTurnkey $593,800                                                     |
-| 441                | Monarch, Deanside         | Corella 18  | $657,500                                                                            |
-| 4257               | Riverwalk, Werribee       | Corella 22  | $636,500                                                                            |
-| 336                | Society 1056, Fraser Rise | Ofarell 16  | $634,700                                                                            |
-| 334                | Society 1056, Fraser Rise | Ofarell 17  | $687,600                                                                            |
-| 1216 Vespa Grange  | Smythes Creek             | Tennyson 12 | $524,105 · 3/2/1 · 116.30 m² · 336 m²                                               |
-| 1218 Invicta Drive | Smythes Creek             | Ofarell 16  | $549,500 · 4/2/2 · 154.81 m² · 362 m²                                               |
-| 1218 Invicta Drive | Smythes Creek             | Tennyson 15 | $557,970 · 3/3/1 · 136.43 m² · 362 m²                                               |
-| 1216 Vespa Grange  | Smythes Creek             | Ofarell 16  | $559,630 · 4/2/2 · 167.22 m² · 336 m²                                               |
+A third-party aggregator lists 81 "house and land packages by DBN Homes" across 24
+suburbs. **Those figures do not appear anywhere on this site**, because they could not be
+confirmed as DBN's own inventory and there is direct evidence against it:
 
-**The remaining 70 records are generated and carry `verified: false`.** They exist so the
-region counts, the suburb spread and the "from" price on the page are truthful against the
-real 81-package footprint. They are produced deterministically by
-`tools/generate-packages.mjs` under these constraints:
+- The same lot appears more than once with different homes on it — Lot 1216 Vespa Grange
+  is listed both as a 3/2/1 at 116.30 m² and a 4/2/2 at 167.22 m².
+- Bed, bath and car counts contradict DBN's actual floorplans — Corella 18 appears as a
+  3/2/2 at one estate; the real floorplan is 4/2/1.
 
-- Real suburb distribution and real regional totals (West 26 · Ballarat 21 · North 12 ·
-  Geelong 10 · South East 6 · Gippsland 6).
-- SmartSpecs price inside a regional band; Ballarat and Gippsland skew low, Melbourne West
-  and South East skew high. LuxeTurnkey sits $50,000–$65,000 above SmartSpecs.
-- Land price 52–62% of the SmartSpecs figure.
-- Only designs with confirmed dimensions are placed, and only where the frontage fits.
-- Land size 280–450 m²; titles between Q3 2026 and Q2 2027, roughly a fifth titled now.
-- No generated price falls below the real cheapest package, so the site's "from $524,105"
-  stays the verified figure.
+The likely explanation is that estate marketers generate listings by pairing available
+lots with any builder on their panel. Those are marketing combinations, not booked
+inventory. The three Ballarat-region records that anchored the sub-$600,000 story in the
+first pass have been removed for the same reason.
 
-**These must all be replaced with the real inventory before launch.** Nothing about the
-generated set should be quoted to a buyer.
+**Every count on the site is derived from the data at build time.** No package total,
+suburb count or "from" price is typed into copy anywhere.
+
+### What is in the data
+
+**Seven records are verified**, sourced from public listings, and their numbers are not
+altered anywhere in the build.
+
+| Lot            | Estate                    | Design     | Figures held                                                                        |
+| -------------- | ------------------------- | ---------- | ----------------------------------------------------------------------------------- |
+| 1203 Kinane St | Maplewood, Melton South   | Corella 22 | SmartSpecs $592,400 · LuxeTurnkey $655,800 · land $350,000 · 400 m² · title Q2 2026 |
+| 1007           | Aldo, Fraser Rise         | Ofarell 20 | $592,400 / $655,800 · land $350,000 · title Q2 2026                                 |
+| 930            | Aldo, Fraser Rise         | Corella 18 | $536,500 · LuxeTurnkey $593,800                                                     |
+| 441            | Monarch, Deanside         | Corella 18 | $657,500                                                                            |
+| 4257           | Riverwalk, Werribee       | Corella 22 | $636,500                                                                            |
+| 336            | Society 1056, Fraser Rise | Ofarell 16 | $634,700                                                                            |
+| 334            | Society 1056, Fraser Rise | Ofarell 17 | $687,600                                                                            |
+
+**Fifteen more are generated** by `tools/generate-packages.mjs`, all carrying
+`verified: false`, and all confined to the six confirmed estates. No estate is invented.
+Constraints: designs must fit the lot frontage, LuxeTurnkey sits $50,000–$65,000 above
+SmartSpecs, land is 52–62% of the SmartSpecs figure, land size 280–450 m², titles between
+Q3 2026 and Q2 2027 with roughly a fifth titled now, and no generated price falls below
+the cheapest verified record — so the "from" price on the site stays a real one.
+
+**All fifteen must be replaced with the real inventory before launch.**
 
 Also to confirm:
 
-- **Where the inventory comes from.** Is there a spreadsheet, or a portal feed? That
-  answer decides whether the production build needs an importer or manual entry.
-- **Estate names** for the 19 suburbs with live packages but no confirmed estate name:
-  Mambourin · Truganina · Tarneit · Wyndham Vale · Weir Views · Strathtulloh · Beveridge ·
-  Wallan · Diggers Rest · Donnybrook · Junction Village · Clyde North · Pakenham ·
-  Armstrong Creek · Lara · Winter Valley · Longwarry · Drouin · Warragul. The UI already
-  handles a package with no estate line, so this is an improvement rather than a blocker.
+- **Where the inventory comes from.** A spreadsheet, or a portal feed? That answer decides
+  whether the production build needs an importer or manual entry.
+- **The regional footprint.** Plumpton, Kurunjang and the Ballarat region appear on the
+  homepage as text under "Also building in", deliberately without counts or a map pin,
+  because we cannot confirm they are the client's own marketing. Dream Ballarat Estate is
+  in `estates.json` with `verified: false` and holds no packages.
 
 ## 4. Reviews — `src/data/reviews.json`
 

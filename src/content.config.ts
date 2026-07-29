@@ -4,8 +4,8 @@ import { file } from 'astro/loaders';
 
 /**
  * Content collections map 1:1 onto the WordPress custom post types this
- * prototype becomes. The schemas are deliberately strict — a bad record
- * should fail the build, not reach the page.
+ * prototype becomes. The schemas are strict — a bad record should fail the
+ * build, not reach the page.
  *
  * Every record carries `verified`. `true` means the value is confirmed from a
  * public source; `false` means it is a plausible placeholder that must be
@@ -21,11 +21,10 @@ const tiers = defineCollection({
     name: z.string(),
     tagline: z.string(),
     priceFrom: z.number().int().positive(),
-    priceFromLabel: z.string(),
-    priceFromSubLabel: z.string(),
+    priceNote: z.string(),
     summary: z.string(),
     inheritsFrom: z.string().optional(),
-    inclusions: z.array(z.string()).min(4),
+    inclusions: z.array(z.string()).min(4).max(6),
     cta: z.object({ label: z.string(), href: z.string() }),
     ...verifiable,
   }),
@@ -56,20 +55,6 @@ const designs = defineCollection({
   }),
 });
 
-const regions = defineCollection({
-  loader: file('src/data/regions.json'),
-  schema: z.object({
-    id: z.string(),
-    name: z.string(),
-    /** Display order. Collections load alphabetically, which is not the order
-        a buyer should meet the regions in. */
-    order: z.number().int(),
-    blurb: z.string(),
-    suburbs: z.array(z.object({ name: z.string(), postcode: z.string() })).min(1),
-    ...verifiable,
-  }),
-});
-
 const estates = defineCollection({
   loader: file('src/data/estates.json'),
   schema: z.object({
@@ -77,7 +62,10 @@ const estates = defineCollection({
     name: z.string(),
     suburb: z.string(),
     postcode: z.string(),
-    region: z.string(),
+    /** Real coordinates — the locality map plots from these, not from art. */
+    lat: z.number(),
+    lng: z.number(),
+    blurb: z.string(),
     ...verifiable,
   }),
 });
@@ -88,10 +76,9 @@ const packages = defineCollection({
     id: z.string(),
     lot: z.string(),
     street: z.string().nullable(),
-    estate: z.string().nullable(),
+    estate: z.string(),
     suburb: z.string(),
     postcode: z.string(),
-    region: z.string(),
     design: z.string(),
     bedrooms: z.number().int().min(1),
     bathrooms: z.number().int().min(1),
@@ -121,14 +108,10 @@ const reviews = defineCollection({
     source: z.string(),
     order: z.number().int(),
     condensed: z.boolean(),
-    /**
-     * Defaults to false on every record until the client authorises
-     * publication. AggregateRating schema is withheld unless every rendered
-     * review is approved.
-     */
+    /** Defaults to false until the client authorises publication. */
     publishApproved: z.boolean(),
     ...verifiable,
   }),
 });
 
-export const collections = { tiers, designs, regions, estates, packages, reviews };
+export const collections = { tiers, designs, estates, packages, reviews };

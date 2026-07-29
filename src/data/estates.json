@@ -4,7 +4,9 @@
     "name": "Aldo Estate",
     "suburb": "Fraser Rise",
     "postcode": "3336",
-    "region": "melbourne-west",
+    "lat": -37.69,
+    "lng": 144.735,
+    "blurb": "Established release with parkland frontage and a primary school inside the estate.",
     "verified": true
   },
   {
@@ -12,7 +14,9 @@
     "name": "Society 1056",
     "suburb": "Fraser Rise",
     "postcode": "3336",
-    "region": "melbourne-west",
+    "lat": -37.6975,
+    "lng": 144.7455,
+    "blurb": "Compact lots on the eastern edge, walking distance to the town centre.",
     "verified": true
   },
   {
@@ -20,7 +24,9 @@
     "name": "Botania",
     "suburb": "Fraser Rise",
     "postcode": "3336",
-    "region": "melbourne-west",
+    "lat": -37.6835,
+    "lng": 144.7285,
+    "blurb": "Newer release backing onto the wetland reserve, townhomes and detached lots.",
     "verified": true
   },
   {
@@ -28,7 +34,9 @@
     "name": "Monarch Estate",
     "suburb": "Deanside",
     "postcode": "3336",
-    "region": "melbourne-west",
+    "lat": -37.7105,
+    "lng": 144.7395,
+    "blurb": "Our display home sits here, on Sinclairs Road.",
     "verified": true
   },
   {
@@ -36,7 +44,9 @@
     "name": "Maplewood Estate",
     "suburb": "Melton South",
     "postcode": "3338",
-    "region": "melbourne-west",
+    "lat": -37.7015,
+    "lng": 144.5705,
+    "blurb": "Western edge of Melton South, ten minutes from Woodgrove.",
     "verified": true
   },
   {
@@ -44,7 +54,9 @@
     "name": "Riverwalk",
     "suburb": "Werribee",
     "postcode": "3030",
-    "region": "melbourne-west",
+    "lat": -37.8875,
+    "lng": 144.6485,
+    "blurb": "Along the Werribee River, close to the station and the town centre.",
     "verified": true
   },
   {
@@ -52,23 +64,9 @@
     "name": "Dream Ballarat Estate",
     "suburb": "Sebastopol",
     "postcode": "3356",
-    "region": "ballarat",
-    "verified": true
-  },
-  {
-    "id": "vespa-grange",
-    "name": "Vespa Grange",
-    "suburb": "Smythes Creek",
-    "postcode": "3351",
-    "region": "ballarat",
-    "verified": true
-  },
-  {
-    "id": "invicta-drive",
-    "name": "Invicta Drive",
-    "suburb": "Smythes Creek",
-    "postcode": "3351",
-    "region": "ballarat",
-    "verified": true
+    "lat": -37.5925,
+    "lng": 143.8345,
+    "blurb": "Ballarat region — presence confirmed, marketing not yet confirmed with the client.",
+    "verified": false
   }
 ]

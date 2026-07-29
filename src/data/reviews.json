@@ -1,47 +1,47 @@
 [
   {
-    "id": "first-home-buyers-west",
-    "quote": "After speaking with a lot of builders, we chose DBN because they never pushed sales talk or rushed us into signing. Two months in and we're still getting compliments on the house.",
+    "id": "first-home-buyers",
+    "quote": "They never pushed sales talk or rushed us into signing. Two months in and we still get compliments on the house.",
     "author": "First home buyers",
     "context": "Melbourne's west",
     "source": "Google review",
+    "order": 0,
     "condensed": true,
     "publishApproved": false,
-    "verified": true,
-    "order": 0
+    "verified": true
   },
   {
     "id": "built-2025",
-    "quote": "The construction process was really quick and the team was easy to communicate with the whole way through. Our site supervisor Anthony was approachable and genuinely helpful.",
-    "author": "Built with DBN",
-    "context": "2025",
+    "quote": "The build was quick and the team was easy to reach. Our site supervisor Anthony was genuinely helpful.",
+    "author": "Built 2025",
+    "context": "Fraser Rise",
     "source": "Google review",
+    "order": 1,
     "condensed": true,
     "publishApproved": false,
-    "verified": true,
-    "order": 1
+    "verified": true
   },
   {
     "id": "switched-builders",
-    "quote": "We came to DBN on a time crunch after another major builder fell through on slow service. Shane was easy to deal with and DBN delivered quickly. We wouldn't be in our home otherwise.",
+    "quote": "We came to DBN on a time crunch after another builder fell through. Without Shane we wouldn't be in our home.",
     "author": "Switched builders mid-process",
     "context": "Melbourne's west",
     "source": "Google review",
+    "order": 2,
     "condensed": true,
     "publishApproved": false,
-    "verified": true,
-    "order": 2
+    "verified": true
   },
   {
     "id": "mel-and-luke",
-    "quote": "Exceptional builder choice. We had our handover in early September and the quality exceeded what we expected. We have built with other companies before and rate DBN's service higher.",
+    "quote": "Exceptional builder choice. The quality exceeded what we expected, and we have built with other companies before.",
     "author": "Mel & Luke",
     "context": "Handover, September",
     "source": "dbnhomes.com.au",
+    "order": 3,
     "condensed": true,
     "publishApproved": false,
-    "verified": true,
-    "order": 3
+    "verified": true
   },
   {
     "id": "mervyn-l",
@@ -49,9 +49,9 @@
     "author": "Mervyn L.",
     "context": "First home buyers",
     "source": "dbnhomes.com.au",
+    "order": 4,
     "condensed": true,
     "publishApproved": false,
-    "verified": true,
-    "order": 4
+    "verified": true
   }
 ]

@@ -2,21 +2,23 @@
 import Icon, { type IconName } from './Icon.astro';
 
 /**
- * One button component, three variants, two tones.
+ * One button component, four variants, two tones.
  *
- * `tone="dark"` is for buttons sitting on --color-forest or over the hero
- * scrim, where the primary fill inverts to white on forest text.
+ * `tone="dark"` is for buttons on forest or over the hero scrim.
+ * `variant="glass"` is the secondary treatment over imagery: a translucent
+ * pane with a blurred backdrop, so it reads as a control sitting on the film
+ * rather than an outline lost in it. Where backdrop-filter is unavailable the
+ * fallback is a plain translucent fill, which still clears contrast.
  */
 interface Props {
   href?: string;
   type?: 'button' | 'submit';
-  variant?: 'primary' | 'secondary' | 'tertiary';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'glass';
   tone?: 'light' | 'dark';
   icon?: IconName;
   full?: boolean;
   class?: string;
   'aria-label'?: string;
-  'data-nav-close'?: boolean;
 }
 
 const {
@@ -30,44 +32,161 @@ const {
   ...rest
 } = Astro.props;
 
-const base =
-  'group inline-flex items-center justify-center gap-2 font-semibold tracking-[0.01em] ' +
-  'transition-[background-color,color,border-color,transform] duration-base ease-out ' +
-  'min-h-[44px] no-underline';
-
-const solid = 'h-12 md:h-[52px] px-7 rounded-md text-body';
-
-const variants = {
-  primary: {
-    light: `${solid} bg-forest text-surface hover:bg-forest-lift hover:-translate-y-px active:translate-y-0`,
-    dark: `${solid} bg-surface text-forest hover:bg-limestone hover:-translate-y-px active:translate-y-0`,
-  },
-  secondary: {
-    light: `${solid} border border-ink text-ink hover:bg-ink hover:text-paper`,
-    dark: `${solid} border border-white/35 text-surface hover:bg-surface hover:text-forest`,
-  },
-  tertiary: {
-    light: 'text-ink underline underline-offset-4 decoration-1 hover:decoration-2 py-2',
-    dark: 'text-surface underline underline-offset-4 decoration-1 hover:decoration-2 py-2',
-  },
-} as const;
-
-const classes = [base, variants[variant][tone], full ? 'w-full' : '', className]
-  .filter(Boolean)
-  .join(' ');
-
 const Tag = href ? 'a' : 'button';
 ---
 
-<Tag class={classes} href={href} type={href ? undefined : type} {...rest}>
+<Tag
+  class:list={['btn', `btn-${variant}`, `tone-${tone}`, full && 'is-full', className]}
+  href={href}
+  type={href ? undefined : type}
+  {...rest}
+>
   <slot />
-  {
-    icon && (
-      <Icon
-        name={icon}
-        size={18}
-        class="shrink-0 transition-transform duration-base ease-out group-hover:translate-x-[3px]"
-      />
-    )
-  }
+  {icon && <Icon name={icon} size={18} class="btn-icon" />}
 </Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    height: 48px;
+    padding-inline: 1.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+  }
+
+  @media (min-width: 768px) {
+    .btn {
+      height: 52px;
+    }
+  }
+
+  .is-full {
+    width: 100%;
+  }
+
+  .btn-icon {
+    flex: none;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .btn:hover .btn-icon {
+    transform: translateX(3px);
+  }
+
+  /* Primary ---------------------------------------------------------- */
+  .btn-primary.tone-light {
+    background-color: var(--color-forest);
+    color: var(--color-surface);
+  }
+
+  .btn-primary.tone-light:hover {
+    background-color: var(--color-forest-lift);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary.tone-dark {
+    background-color: var(--color-surface);
+    color: var(--color-forest);
+  }
+
+  .btn-primary.tone-dark:hover {
+    background-color: var(--color-limestone);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Secondary -------------------------------------------------------- */
+  .btn-secondary.tone-light {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+
+  .btn-secondary.tone-light:hover {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  .btn-secondary.tone-dark {
+    border-color: rgb(255 255 255 / 0.4);
+    color: var(--color-surface);
+  }
+
+  .btn-secondary.tone-dark:hover {
+    background-color: var(--color-surface);
+    color: var(--color-forest);
+  }
+
+  /* Glass — for use over imagery ------------------------------------- */
+  .btn-glass {
+    background-color: rgb(255 255 255 / 0.14);
+    border-color: rgb(255 255 255 / 0.34);
+    color: var(--color-surface);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .btn-glass {
+      background-color: rgb(255 255 255 / 0.1);
+      backdrop-filter: blur(14px) saturate(1.1);
+    }
+  }
+
+  .btn-glass:hover {
+    background-color: rgb(255 255 255 / 0.24);
+    border-color: rgb(255 255 255 / 0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-glass.tone-light {
+    background-color: rgb(22 33 31 / 0.06);
+    border-color: var(--color-rule-strong);
+    color: var(--color-ink);
+    box-shadow: none;
+  }
+
+  .btn-glass.tone-light:hover {
+    background-color: rgb(22 33 31 / 0.1);
+  }
+
+  /* Tertiary --------------------------------------------------------- */
+  .btn-tertiary {
+    height: auto;
+    padding: 0.5rem 0;
+    font-size: var(--text-small);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .btn-tertiary.tone-light {
+    color: var(--color-ink);
+  }
+
+  .btn-tertiary.tone-dark {
+    color: var(--color-surface);
+  }
+
+  .btn-tertiary:hover {
+    text-decoration-thickness: 2px;
+  }
+</style>

@@ -10,6 +10,7 @@ interface Props {
   /** Accessible name. Omit when the icon sits beside visible text. */
   label?: string;
   class?: string;
+  strokeWidth?: number;
 }
 
 const paths = {
@@ -17,10 +18,12 @@ const paths = {
     'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
   ],
   'arrow-right': ['M5 12h14', 'm12 5 7 7-7 7'],
+  'arrow-left': ['M19 12H5', 'm12 19-7-7 7-7'],
   'arrow-up-right': ['M7 7h10v10', 'M7 17 17 7'],
   menu: ['M4 6h16', 'M4 12h16', 'M4 18h16'],
   x: ['M18 6 6 18', 'm6 6 12 12'],
   'chevron-down': ['m6 9 6 6 6-6'],
+  'chevron-up': ['m18 15-6-6-6 6'],
   check: ['M20 6 9 17l-5-5'],
   clock: ['M12 6v6l4 2'],
   'map-pin': [
@@ -40,17 +43,61 @@ const paths = {
     'm6.34 17.66-1.41 1.41',
     'm19.07 4.93-1.41 1.41',
   ],
+  star: [
+    'M11.5 2.7a.6.6 0 0 1 1 0l2.5 5 5.5.8a.6.6 0 0 1 .3 1l-4 3.9.9 5.5a.6.6 0 0 1-.8.6L12 16.9l-4.9 2.6a.6.6 0 0 1-.8-.6l.9-5.5-4-3.9a.6.6 0 0 1 .3-1l5.5-.8z',
+  ],
+  /* Build process */
+  'message-circle': ['M7.9 20A9 9 0 1 0 4 16.1L2 22z'],
+  'file-text': [
+    'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z',
+    'M14 2v4a2 2 0 0 0 2 2h4',
+    'M10 9H8',
+    'M16 13H8',
+    'M16 17H8',
+  ],
+  palette: [
+    'M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z',
+  ],
+  'pen-line': [
+    'M12 20h9',
+    'M16.4 3.6a2 2 0 0 1 3 3L7.4 18.6a2 2 0 0 1-.9.5l-2.9.8a.5.5 0 0 1-.6-.6l.8-2.9a2 2 0 0 1 .5-.9z',
+  ],
+  'file-check': [
+    'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z',
+    'M14 2v4a2 2 0 0 0 2 2h4',
+    'm9 15 2 2 4-4',
+  ],
+  'hard-hat': [
+    'M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z',
+    'M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5',
+    'M4 15v-3a6 6 0 0 1 6-6',
+    'M14 6a6 6 0 0 1 6 6v3',
+  ],
+  key: [
+    'm15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4',
+    'm21 2-9.6 9.6',
+  ],
+  wrench: [
+    'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z',
+  ],
 } as const;
 
 const circles = {
   clock: [{ cx: 12, cy: 12, r: 10 }],
   'map-pin': [{ cx: 12, cy: 10, r: 3 }],
   sun: [{ cx: 12, cy: 12, r: 4 }],
+  key: [{ cx: 7.5, cy: 15.5, r: 5.5 }],
+  palette: [
+    { cx: 13.5, cy: 6.5, r: 0.6 },
+    { cx: 17.5, cy: 10.5, r: 0.6 },
+    { cx: 6.5, cy: 12.5, r: 0.6 },
+    { cx: 8.5, cy: 7.5, r: 0.6 },
+  ],
 } as const;
 
 export type IconName = keyof typeof paths;
 
-const { name, size = 20, label, class: className = '' } = Astro.props;
+const { name, size = 20, label, class: className = '', strokeWidth = 1.5 } = Astro.props;
 const shapes: readonly string[] = paths[name];
 const dots: readonly { cx: number; cy: number; r: number }[] =
   name in circles ? circles[name as keyof typeof circles] : [];
@@ -63,7 +110,7 @@ const dots: readonly { cx: number; cy: number; r: number }[] =
   viewBox="0 0 24 24"
   fill="none"
   stroke="currentColor"
-  stroke-width="1.5"
+  stroke-width={strokeWidth}
   stroke-linecap="round"
   stroke-linejoin="round"
   role={label ? 'img' : undefined}

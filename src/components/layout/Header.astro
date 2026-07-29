@@ -2,22 +2,23 @@
 import Logo from './Logo.astro';
 import MobileNav from './MobileNav.astro';
 import Icon from '../ui/Icon.astro';
-import { primaryNav, site } from '../../lib/site';
+import DisclosureIcon from '../ui/DisclosureIcon.astro';
+import { buildPrimaryNav } from '../../lib/nav';
+import { site } from '../../lib/site';
 
 /**
  * Site header.
  *
- * Above 1024px it is a full horizontal bar with mega menus. Below that the
- * navigation moves into a drawer — a right-hand panel on tablets, full width
- * on phones. On pages with a hero the bar starts transparent and turns solid
- * on scroll; everywhere else it is solid from the first paint.
+ * Above 1024px it is a horizontal bar with mega menus. Below that the
+ * navigation moves into a drawer. On pages with a hero the bar starts
+ * transparent and turns solid on scroll.
  */
 interface Props {
-  /** True on pages whose first section is a full-bleed hero. */
   overHero?: boolean;
 }
 
 const { overHero = false } = Astro.props;
+const primaryNav = await buildPrimaryNav();
 ---
 
 <header
@@ -25,7 +26,7 @@ const { overHero = false } = Astro.props;
   data-header
   data-over-hero={overHero ? '' : undefined}
 >
-  <div class="header-bar border-b">
+  <div class="header-bar">
     <div
       class="mx-auto flex h-header max-w-wide items-center gap-4 px-gutter lg:h-header-lg"
     >
@@ -37,8 +38,7 @@ const { overHero = false } = Astro.props;
         <Logo height={32} class="lg:!h-[38px]" />
       </a>
 
-      <!-- Desktop navigation -->
-      <nav aria-label="Primary" class="ml-auto hidden lg:block">
+      <nav aria-label="Primary" class="header-nav">
         <ul class="flex items-center gap-1">
           {
             primaryNav.map((item, i) =>
@@ -46,43 +46,31 @@ const { overHero = false } = Astro.props;
                 <li class="nav-item" data-nav-item>
                   <button
                     type="button"
-                    class="nav-link inline-flex items-center gap-1.5"
+                    class="nav-link"
                     aria-expanded="false"
                     aria-controls={`mega-${i}`}
                     data-nav-trigger
                   >
                     {item.label}
-                    <Icon
-                      name="chevron-down"
-                      size={16}
-                      class="nav-chevron transition-transform duration-base ease-out"
-                    />
+                    <DisclosureIcon size={14} />
                   </button>
 
                   <div id={`mega-${i}`} class="mega" data-nav-panel hidden>
-                    <div class="mx-auto grid max-w-wide gap-x-10 gap-y-8 px-gutter py-10 lg:grid-cols-12">
+                    <div class="mega-inner">
                       <div
-                        class:list={[
-                          'grid gap-x-10 gap-y-8',
-                          item.panel.columns.length > 2
-                            ? 'lg:col-span-8 sm:grid-cols-3'
-                            : 'lg:col-span-8 sm:grid-cols-2',
-                        ]}
+                        class="mega-columns"
+                        style={`--mega-cols:${item.panel.columns.length}`}
                       >
                         {item.panel.columns.map((column) => (
-                          <div>
-                            <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
-                              {column.heading}
-                            </p>
-                            <ul class="mt-4 flex flex-col gap-0.5">
+                          <div class="mega-column">
+                            <p class="mega-heading">{column.heading}</p>
+                            <ul class="mega-list">
                               {column.links.map((link) => (
                                 <li>
                                   <a class="mega-link" href={link.href}>
-                                    <span>{link.label}</span>
+                                    <span class="mega-link-label">{link.label}</span>
                                     {link.note && (
-                                      <span class="num text-small text-ink-55">
-                                        {link.note}
-                                      </span>
+                                      <span class="num mega-link-note">{link.note}</span>
                                     )}
                                   </a>
                                 </li>
@@ -92,12 +80,15 @@ const { overHero = false } = Astro.props;
                         ))}
                       </div>
 
-                      <div class="mega-promo lg:col-span-4">
-                        <p class="text-h3">{item.panel.promo.heading}</p>
-                        <p class="mt-2 text-small text-ink-70">{item.panel.promo.body}</p>
-                        <a class="mega-promo-cta mt-5" href={item.panel.promo.cta.href}>
+                      <div class="mega-promo">
+                        <p class="mega-promo-heading">{item.panel.promo.heading}</p>
+                        <p class="num mega-promo-body">{item.panel.promo.body}</p>
+                        <span class="mega-promo-cta">
                           {item.panel.promo.cta.label}
                           <Icon name="arrow-right" size={16} />
+                        </span>
+                        <a class="mega-promo-hit" href={item.panel.promo.cta.href}>
+                          <span class="sr-only">{item.panel.promo.cta.label}</span>
                         </a>
                       </div>
                     </div>
@@ -116,16 +107,14 @@ const { overHero = false } = Astro.props;
       </nav>
 
       <div class="ml-auto flex items-center gap-2 lg:ml-6 lg:gap-3">
-        <a class="header-phone num hidden lg:inline-flex" href={site.phoneHref}>
+        <a class="header-phone num" href={site.phoneHref}>
           <Icon name="phone" size={16} />
           {site.phone}
         </a>
-        <a class="header-cta hidden md:inline-flex" href="/build-a-quote/">
-          Build a quote
-        </a>
+        <a class="header-cta" href="/build-a-quote/">Build a quote</a>
         <button
           type="button"
-          class="header-toggle lg:hidden"
+          class="header-toggle"
           aria-expanded="false"
           aria-controls="mobile-nav"
           data-nav-toggle
@@ -140,7 +129,7 @@ const { overHero = false } = Astro.props;
   <div class="mega-backdrop" data-nav-backdrop hidden></div>
 </header>
 
-<MobileNav />
+<MobileNav nav={primaryNav} />
 
 <style>
   /* --------------------------------------------------------------------
@@ -148,17 +137,15 @@ const { overHero = false } = Astro.props;
   -------------------------------------------------------------------- */
   .header-bar {
     background-color: var(--color-surface);
-    border-color: var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
     transition:
       background-color var(--duration-base) var(--ease-out),
       border-color var(--duration-base) var(--ease-out);
   }
 
-  /* Over a hero the bar is transparent until the page scrolls or a mega
-     menu opens. `color-scheme` here is the header's own, not the user's. */
   .site-header[data-over-hero]:not([data-solid]) .header-bar {
     background-color: transparent;
-    border-color: transparent;
+    border-color: rgb(255 255 255 / 0.14);
   }
 
   .site-header[data-over-hero]:not([data-solid]) {
@@ -169,36 +156,48 @@ const { overHero = false } = Astro.props;
     filter: brightness(0) invert(1);
   }
 
+  .header-nav {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .header-nav {
+      display: block;
+      margin-left: auto;
+    }
+  }
+
   /* --------------------------------------------------------------------
-     Links
+     Bar links
   -------------------------------------------------------------------- */
   .nav-link {
     display: inline-flex;
     align-items: center;
+    gap: 0.375rem;
     min-height: 44px;
     padding-inline: 0.75rem;
+    border: 0;
     border-radius: var(--radius-sm);
+    background: transparent;
     font-size: var(--text-small);
     font-weight: 600;
     letter-spacing: 0.005em;
     text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
     transition: opacity var(--duration-micro) var(--ease-out);
   }
 
   .nav-link:hover {
-    opacity: 0.7;
+    opacity: 0.72;
   }
 
   .nav-item {
     position: static;
   }
 
-  [data-nav-trigger][aria-expanded='true'] .nav-chevron {
-    transform: rotate(180deg);
-  }
-
   .header-phone {
+    display: none;
     align-items: center;
     gap: 0.5rem;
     min-height: 44px;
@@ -211,13 +210,19 @@ const { overHero = false } = Astro.props;
   }
 
   .header-phone:hover {
-    opacity: 0.7;
+    opacity: 0.72;
+  }
+
+  @media (min-width: 1024px) {
+    .header-phone {
+      display: inline-flex;
+    }
   }
 
   .header-cta {
+    display: none;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
     height: 44px;
     padding-inline: 1.25rem;
     border-radius: var(--radius-md);
@@ -232,6 +237,12 @@ const { overHero = false } = Astro.props;
 
   .header-cta:hover {
     background-color: var(--color-forest-lift);
+  }
+
+  @media (min-width: 768px) {
+    .header-cta {
+      display: inline-flex;
+    }
   }
 
   .site-header[data-over-hero]:not([data-solid]) .header-cta {
@@ -255,25 +266,27 @@ const { overHero = false } = Astro.props;
     cursor: pointer;
   }
 
+  .site-header[data-over-hero]:not([data-solid]) .header-toggle {
+    border-color: rgb(255 255 255 / 0.35);
+  }
+
   @media (min-width: 1024px) {
     .header-toggle {
       display: none;
     }
   }
 
-  .site-header[data-over-hero]:not([data-solid]) .header-toggle {
-    border-color: rgb(255 255 255 / 0.35);
-  }
-
   /* --------------------------------------------------------------------
      Mega menu
+     Columns are separated by real hairlines and each heading sits on its own
+     rule, so two lists side by side can never read as one.
   -------------------------------------------------------------------- */
   .mega {
     position: absolute;
     inset-inline: 0;
     top: 100%;
     background-color: var(--color-surface);
-    border-block: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
     box-shadow: var(--shadow-float);
     color: var(--color-ink);
   }
@@ -282,47 +295,133 @@ const { overHero = false } = Astro.props;
     display: none;
   }
 
+  .mega-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 2.5rem;
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding: 2.25rem var(--spacing-gutter) 2.5rem;
+  }
+
+  .mega-columns {
+    display: grid;
+    grid-template-columns: repeat(var(--mega-cols, 2), minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+
+  .mega-column + .mega-column {
+    padding-left: 2.5rem;
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .mega-heading {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-ink);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .mega-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.25rem;
+  }
+
   .mega-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     min-height: 44px;
-    padding: 0.375rem 0.5rem;
-    margin-inline: -0.5rem;
-    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    border-bottom: 1px solid var(--color-rule);
     font-size: var(--text-small);
     text-decoration: none;
-    transition: background-color var(--duration-micro) var(--ease-out);
+    transition:
+      padding-left var(--duration-micro) var(--ease-out),
+      background-color var(--duration-micro) var(--ease-out);
+  }
+
+  .mega-list li:last-child .mega-link {
+    border-bottom: 0;
   }
 
   .mega-link:hover {
+    padding-left: 0.75rem;
     background-color: var(--color-paper);
   }
 
+  .mega-link-label {
+    font-weight: 500;
+  }
+
+  .mega-link-note {
+    flex: none;
+    font-size: 0.75rem;
+    color: var(--color-ink-55);
+    letter-spacing: 0.02em;
+  }
+
+  /* Promo — a distinct surface, not a fourth column of links. */
   .mega-promo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     align-self: start;
-    background-color: var(--color-limestone);
+    gap: 0.5rem;
     padding: 1.75rem;
     border-radius: var(--radius-md);
+    background-color: var(--color-limestone);
+  }
+
+  .mega-promo-heading {
+    font-family: var(--font-display);
+    font-variation-settings: 'wdth' 112;
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .mega-promo-body {
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
   }
 
   .mega-promo-cta {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    min-height: 44px;
+    margin-top: 0.75rem;
     font-size: var(--text-small);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 
+  .mega-promo:hover .mega-promo-cta :global(svg) {
+    transform: translateX(3px);
+  }
+
+  .mega-promo-cta :global(svg) {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .mega-promo-hit {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-md);
+  }
+
   .mega-backdrop {
     position: fixed;
     inset: 0;
     top: var(--spacing-header-lg);
-    background-color: rgb(22 33 31 / 0.24);
+    background-color: rgb(22 33 31 / 0.28);
     z-index: -1;
   }
 

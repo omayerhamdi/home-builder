@@ -1,30 +1,35 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
+import { facadeImage } from '../lib/images';
+import { formatAud, packageFromPrice } from '../lib/format';
 import { footerNav, legalNav, site } from '../lib/site';
 import { buildPrimaryNav } from '../lib/nav';
 
 /**
  * Route stubs.
  *
- * This phase of the build ships the homepage. Every other destination the
- * homepage links to still resolves to a real page with a real explanation
- * rather than a 404 — the navigation can be walked end to end in front of the
- * client without hitting a dead end.
+ * This phase ships the homepage. Every other destination the homepage links to
+ * still resolves to a real page with real metadata rather than a 404, so the
+ * navigation can be walked end to end in front of the client.
  *
- * The path list is derived from the navigation and the data, so a new link
- * cannot be added without a page appearing behind it.
+ * Titles, descriptions and Open Graph images are generated per route type —
+ * package routes get their own record's figures and façade image — so the
+ * metadata layer is already correct when these pages are built out.
  */
 export const getStaticPaths: GetStaticPaths = async () => {
-  const [designs, packages] = await Promise.all([
+  const [designs, packages, estates] = await Promise.all([
     getCollection('designs'),
     getCollection('packages'),
+    getCollection('estates'),
   ]);
-
   const primaryNav = await buildPrimaryNav();
+  const estateName = new Map(estates.map((e) => [e.data.id, e.data]));
+  const designName = new Map(designs.map((d) => [d.data.id, d.data.name]));
 
   const fromNav = [
     ...primaryNav.flatMap((item) => [
@@ -46,28 +51,94 @@ export const getStaticPaths: GetStaticPaths = async () => {
     const path = href.split('?')[0]!.split('#')[0]!;
     if (path && path !== '/') routes.add(path);
   }
-  for (const design of designs) routes.add(`/home-designs/${design.data.id}/`);
-  for (const pkg of packages) routes.add(`/house-and-land/${pkg.data.id}/`);
 
-  return [...routes].map((route) => ({
+  const paths = [...routes].map((route) => ({
     params: { slug: route.replace(/^\/|\/$/g, '') },
+    props: {} as Record<string, unknown>,
   }));
+
+  for (const design of designs) {
+    paths.push({
+      params: { slug: `home-designs/${design.data.id}` },
+      props: {
+        title: `${design.data.name} — ${design.data.frontage}m frontage | ${site.name}`,
+        description: `${design.data.bedrooms} bed, ${design.data.bathrooms} bath, ${design.data.cars} car ${design.data.name} on a ${design.data.frontage}m frontage. ${design.data.squares} squares, single storey, fixed price with site costs included.`,
+      },
+    });
+  }
+
+  for (const entry of packages) {
+    const pkg = entry.data;
+    const estate = estateName.get(pkg.estate);
+    const name = designName.get(pkg.design) ?? pkg.design;
+    paths.push({
+      params: { slug: `house-and-land/${pkg.id}` },
+      props: {
+        title: `${name} — Lot ${pkg.lot} ${estate?.name ?? ''}, ${pkg.suburb} | ${site.name}`,
+        description: `${pkg.bedrooms} bed, ${pkg.bathrooms} bath, ${pkg.cars} car ${name} on ${pkg.landSizeM2}m² at ${estate?.name ?? pkg.suburb}, ${pkg.suburb}. Fixed price from ${formatAud(packageFromPrice(pkg))} including land.${pkg.titleDate ? ` Title ${pkg.titleDate}.` : ' Titled now.'}`,
+        facade: pkg.image,
+      },
+    });
+  }
+
+  return paths;
 };
 
 const { slug } = Astro.params;
+const {
+  title: propTitle,
+  description: propDescription,
+  facade,
+} = Astro.props as { title?: string; description?: string; facade?: string };
 
-/** Human label for the requested route, used in the heading. */
+/** Per-section metadata for the routes that already have specified copy. */
+const known: Record<string, { title: string; description: string }> = {
+  'house-and-land': {
+    title: `House & Land Packages, Melbourne West | ${site.name}`,
+    description:
+      "Fixed-price house and land packages in Melbourne's western growth corridor. Landscaping, fencing and driveway included. Filter by estate, budget and block size.",
+  },
+  'home-designs': {
+    title: `Home Designs, 8.5m to 16m Frontage | ${site.name}`,
+    description:
+      'Five series, thirteen single-storey designs built around a frontage width. Fixed price with site costs included, 7-star energy rating and solar as standard.',
+  },
+  inclusions: {
+    title: `SmartSpecs and LuxeTurnkey Inclusions | ${site.name}`,
+    description:
+      'Two levels of finish, one fixed price. Compare what is included in SmartSpecs and LuxeTurnkey, plus the façade range and the full inclusions schedule.',
+  },
+};
+
 const label = (slug ?? '')
   .split('/')
   .pop()!
   .replace(/-/g, ' ')
   .replace(/^./, (c) => c.toUpperCase());
+
+const fallback = known[slug ?? ''];
+const title = propTitle ?? fallback?.title ?? `${label} | ${site.name}`;
+const description =
+  propDescription ??
+  fallback?.description ??
+  "Fixed price, full turnkey homes in Melbourne's west. Landscaping, fencing and driveway included. This section is scheduled for the next stage of the build.";
+
+/* Package routes carry their own façade as the share image. */
+const ogImage = facade
+  ? (
+      await getImage({
+        src: facadeImage(facade),
+        width: 1200,
+        height: 630,
+        fit: 'cover',
+        format: 'jpeg',
+        quality: 72,
+      })
+    ).src
+  : undefined;
 ---
 
-<BaseLayout
-  title={`${label} | DBN Homes`}
-  description="Fixed price, full turnkey homes across Melbourne's western growth corridor. This section is scheduled for the next stage of the build."
->
+<BaseLayout title={title} description={description} ogImage={ogImage}>
   <section class="bg-paper py-section" aria-labelledby="stub-heading">
     <div class="mx-auto max-w-content px-gutter">
       <Eyebrow>Next stage of the build</Eyebrow>

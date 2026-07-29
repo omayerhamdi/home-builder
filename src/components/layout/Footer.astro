@@ -6,8 +6,13 @@ import { footerNav, legalNav, site } from '../../lib/site';
 const year = 2026;
 
 /* Assembled here so a line break in the template can never eat a separator. */
-const legalLine = `${site.legalName} · ABN ${site.abn} · Registered Building Practitioner ${site.builderLicence} · HIA Member`;
-const contactLine = `${site.phone} · ${site.email} · ${site.display.fullAddress}`;
+const legalParts = [
+  site.legalName,
+  `ABN ${site.abn}`,
+  `Registered Building Practitioner ${site.builderLicence}`,
+  'HIA Member',
+];
+const contactParts = [site.phone, site.email, site.display.fullAddress];
 ---
 
 <footer class="bg-forest-deep text-surface">
@@ -76,8 +81,12 @@ const contactLine = `${site.phone} · ${site.email} · ${site.display.fullAddres
     </div>
 
     <div class="mt-14 border-t border-white/15 pt-8">
-      <p class="num text-small text-white/70">{legalLine}</p>
-      <p class="num mt-1 text-small text-white/70">{contactLine}</p>
+      <ul class="legal-lines num">
+        {legalParts.map((part) => <li>{part}</li>)}
+      </ul>
+      <ul class="legal-lines num mt-1">
+        {contactParts.map((part) => <li>{part}</li>)}
+      </ul>
 
       <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2">
         {
@@ -91,21 +100,82 @@ const contactLine = `${site.phone} · ${site.email} · ${site.display.fullAddres
         }
       </ul>
 
-      <p class="mt-8 max-w-[80ch] text-small leading-relaxed text-white/55">
-        Prices are correct at the date of publication and subject to change. Images are
-        indicative and may show upgrade items not included in the advertised price. Land
-        is sold under a separate contract with the estate developer. Full terms in our
-        Clauses & Provisions.
+      <p class="footer-disclaimer">
+        Prices correct at publication and subject to change. Images are indicative and may
+        show upgrade items. Land is sold under a separate contract with the developer.
       </p>
 
-      <p class="mt-6 text-small text-white/55">
-        {`© ${site.name} ${year}`}
-      </p>
+      <p class="footer-copyright">{`© ${site.name} ${year}`}</p>
+
+      <p class="footer-credit">Designed and developed by First Draft Communications</p>
     </div>
   </div>
 </footer>
 
 <style>
+  /* The legal block reads as a list of facts, not a paragraph — each part on
+     its own line so nothing wraps mid-phrase on a phone. */
+  .legal-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: var(--text-small);
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  @media (min-width: 768px) {
+    .legal-lines {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0 0.5rem;
+    }
+
+    .legal-lines li + li::before {
+      content: '· ';
+    }
+  }
+
+  .footer-disclaimer {
+    max-width: 80ch;
+    margin-top: 2rem;
+    font-size: var(--text-small);
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.55);
+  }
+
+  .footer-copyright {
+    margin-top: 1.5rem;
+    font-size: var(--text-small);
+    color: rgb(255 255 255 / 0.55);
+  }
+
+  /* Agency credit — its own line, not folded into the legal text. */
+  .footer-credit {
+    margin-top: 12px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: rgb(255 255 255 / 0.55);
+    transition: color var(--duration-micro) var(--ease-out);
+  }
+
+  .footer-credit:hover {
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  @media (max-width: 767px) {
+    .legal-lines,
+    .footer-disclaimer,
+    .footer-copyright {
+      font-size: 11px;
+      line-height: 1.55;
+      color: rgb(255 255 255 / 0.62);
+    }
+
+    .footer-credit {
+      font-size: 11px;
+    }
+  }
+
   .footer-link {
     display: inline-flex;
     align-items: center;

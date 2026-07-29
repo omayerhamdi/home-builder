@@ -1,188 +1,527 @@
 ---
 import { getCollection } from 'astro:content';
-import { Picture } from 'astro:assets';
 import Section from '../ui/Section.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import Icon from '../ui/Icon.astro';
-import aerial from '../../assets/img/estates/estate-aerial-frames.jpg';
-import { site } from '../../lib/site';
 
 /**
  * Where we build.
  *
- * This section exists to correct a live misrepresentation: the current site
- * presents DBN as a west-of-Melbourne builder, when in fact Ballarat is their
- * single largest concentration. The counts are real.
+ * A locality plan rather than a photograph or an embedded map tile. Every pin
+ * is projected from the estate's real coordinates in `estates.json`, and the
+ * arcs are true distance rings from the CBD — so the map answers the question
+ * a buyer actually asks, which is *how far out is this?*
+ *
+ * It is drawn as inline SVG: no map provider, no API key, no third-party
+ * script, and it inherits the palette. Hovering or focusing an estate in the
+ * list lights its pin, and the reverse, so the two halves read as one control.
+ *
+ * The regional footprint is deliberately absent from the map — it is listed
+ * as text and flagged for verification, because we cannot confirm it is the
+ * client's own marketing.
  */
-const [regions, packages] = await Promise.all([
-  getCollection('regions'),
+const [estates, packages] = await Promise.all([
+  getCollection('estates'),
   getCollection('packages'),
 ]);
 
-const counts = new Map<string, number>();
-for (const entry of packages) {
-  counts.set(entry.data.region, (counts.get(entry.data.region) ?? 0) + 1);
-}
+const rows = packages.map((entry) => entry.data);
 
-const grouped = regions
-  .map((region) => ({ ...region.data, count: counts.get(region.data.id) ?? 0 }))
+const mapped = estates
+  .map((entry) => ({
+    ...entry.data,
+    count: rows.filter((p) => p.estate === entry.data.id).length,
+  }))
+  .filter((estate) => estate.count > 0 && estate.verified)
   .sort((a, b) => b.count - a.count);
 
-const largest = grouped[0]!;
+/* Linear projection over Melbourne's west. Accurate enough at this scale and
+   it keeps the drawing honest — nothing is placed by eye. */
+const BOX = { west: 144.53, east: 145.0, north: -37.655, south: -37.92 };
+const W = 800;
+const H = 520;
+const KM_PER_LNG = 88;
+const KM_PER_LAT = 111;
+
+const px = (lng: number) => ((lng - BOX.west) / (BOX.east - BOX.west)) * W;
+const py = (lat: number) => ((BOX.north - lat) / (BOX.north - BOX.south)) * H;
+
+const cbd = { x: px(144.9631), y: py(-37.8136) };
+
+/** Distance rings from the CBD, in kilometres. */
+const rings = [20, 30, 40].map((km) => ({
+  km,
+  rx: (km / KM_PER_LNG / (BOX.east - BOX.west)) * W,
+  ry: (km / KM_PER_LAT / (BOX.north - BOX.south)) * H,
+}));
+
+/** Stylised north-west shoreline of Port Phillip Bay. */
+const shore = [
+  [144.755, -37.915],
+  [144.83, -37.868],
+  [144.9, -37.858],
+  [144.935, -37.84],
+]
+  .map(([lng, lat]) => `${px(lng!).toFixed(1)},${py(lat!).toFixed(1)}`)
+  .join(' ');
+const bay = `${px(144.755).toFixed(1)},${H} ${shore} ${W},${py(-37.84).toFixed(1)} ${W},${H}`;
+
+/**
+ * One pin per suburb, not per estate. Three of these estates sit within a
+ * kilometre of each other at Fraser Rise; plotted individually they collide
+ * into an unreadable knot. The map answers "where", the list answers "which" —
+ * hovering either still lights the other.
+ */
+const pins = [...new Map(mapped.map((e) => [e.suburb, e])).entries()].map(
+  ([suburb, first]) => {
+    const group = mapped.filter((e) => e.suburb === suburb);
+    return {
+      suburb,
+      postcode: first.postcode,
+      ids: group.map((e) => e.id),
+      estates: group.length,
+      count: group.reduce((n, e) => n + e.count, 0),
+      x: px(group.reduce((n, e) => n + e.lng, 0) / group.length),
+      y: py(group.reduce((n, e) => n + e.lat, 0) / group.length),
+    };
+  },
+);
+
+const alsoBuilding = ['Plumpton', 'Kurunjang', 'Ballarat region'];
 ---
 
-<Section id="where-we-build" band="surface" labelledby="zones-heading">
+<Section id="where-we-build" band="paper" labelledby="zones-heading">
   <div class="flex flex-wrap items-end justify-between gap-6">
     <div class="max-w-prose">
-      <Eyebrow>
-        <span class="num">{site.suburbsTotal}</span> suburbs · <span class="num">6</span> regions
-      </Eyebrow>
+      <Eyebrow>Melbourne's west</Eyebrow>
       <h2 id="zones-heading" class="mt-4 text-h2">
-        We build further than most people think.
+        We know these estates. That's why the price holds.
       </h2>
       <p class="mt-5 text-lead text-ink-70">
-        Melbourne's west and north, the south east corridor, Geelong, Ballarat and
-        Gippsland. We've worked these estates for six years — we know the developer
-        guidelines and the ground conditions, which is a large part of why our site costs
-        don't move.
+        Six years in the western growth corridor — the guidelines, the soil, the lots.
       </p>
     </div>
 
     <a class="section-link" href="/contact/">
-      Check if we build on your block
+      Check your block
       <Icon name="arrow-right" size={18} />
     </a>
   </div>
 
-  <ul class="zones" data-reveal-group>
+  <div class="zones" data-locality>
+    <ul class="zone-list">
+      {
+        mapped.map((estate) => (
+          <li>
+            <a
+              class="zone-row"
+              href={`/house-and-land/?estate=${estate.id}`}
+              data-estate={estate.id}
+            >
+              <span class="zone-dot" aria-hidden="true" />
+              <span class="zone-text">
+                <span class="zone-name">{estate.name}</span>
+                <span class="num zone-suburb">
+                  {estate.suburb} {estate.postcode}
+                </span>
+              </span>
+              <span class="num zone-count">{estate.count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <figure class="zone-map">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label={`Locality plan of Melbourne's western growth corridor showing ${pins.map((p) => p.suburb).join(', ')}, with distance rings from the Melbourne CBD.`}
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path
+              d="M40 0H0V40"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              opacity="0.11"></path>
+          </pattern>
+        </defs>
+
+        <rect width={W} height={H} class="map-land"></rect>
+        <rect width={W} height={H} fill="url(#grid)" class="map-ink"></rect>
+
+        <polygon points={bay} class="map-bay"></polygon>
+        <polyline points={shore} class="map-shore"></polyline>
+
+        {
+          rings.map((ring) => (
+            <ellipse cx={cbd.x} cy={cbd.y} rx={ring.rx} ry={ring.ry} class="map-ring" />
+          ))
+        }
+        {
+          rings.map((ring) => (
+            <text x={cbd.x - ring.rx + 8} y={cbd.y - 8} class="map-ring-label num">
+              {ring.km}km
+            </text>
+          ))
+        }
+
+        <g class="map-cbd">
+          <circle cx={cbd.x} cy={cbd.y} r="5"></circle>
+          <text x={cbd.x - 12} y={cbd.y + 4} text-anchor="end">Melbourne CBD</text>
+        </g>
+
+        <text x={px(144.9) - 6} y={py(-37.9) + 10} class="map-water-label">
+          Port Phillip Bay
+        </text>
+
+        {
+          pins.map((pin) => (
+            <g class="map-pin" data-pin={pin.ids.join(' ')} tabindex="-1">
+              <circle cx={pin.x} cy={pin.y} r="20" class="map-pin-halo" />
+              <circle cx={pin.x} cy={pin.y} r="7" class="map-pin-dot" />
+              <text x={pin.x} y={pin.y - 20} text-anchor="middle" class="map-pin-label">
+                {pin.suburb}
+              </text>
+              <text
+                x={pin.x}
+                y={pin.y + 32}
+                text-anchor="middle"
+                class="map-pin-count num"
+              >
+                {pin.count}
+              </text>
+            </g>
+          ))
+        }
+      </svg>
+
+      <figcaption class="zone-map-note">
+        Indicative locality plan. Distances measured from the Melbourne CBD.
+      </figcaption>
+    </figure>
+  </div>
+
+  <p class="zone-also">
+    <span class="zone-also-label">Also building in</span>
     {
-      grouped.map((region) => (
-        <li class="zone" data-reveal>
-          <p class="flex items-baseline justify-between gap-3">
-            <span class="text-h3">{region.name}</span>
-            <span class="num shrink-0 text-small text-ink-55">
-              {region.count} packages
-            </span>
-          </p>
-          <p class="mt-2 text-small text-ink-70">{region.blurb}</p>
-          <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1">
-            {region.suburbs.map((suburb, i) => (
-              <li class="text-small text-ink-70">
-                {suburb.name}
-                <span class="num text-ink-55"> {suburb.postcode}</span>
-                {i < region.suburbs.length - 1 && <span aria-hidden="true"> ·</span>}
-              </li>
-            ))}
-          </ul>
-        </li>
+      alsoBuilding.map((place, i) => (
+        <>
+          <span class="zone-also-place">{place}</span>
+          {i < alsoBuilding.length - 1 && <span aria-hidden="true"> · </span>}
+        </>
       ))
     }
-  </ul>
-
-  <figure class="zone-map">
-    <Picture
-      src={aerial}
-      alt="Aerial view of a Melbourne growth-corridor estate — completed DBN homes alongside slabs and frames on the next release"
-      formats={['avif']}
-      fallbackFormat="webp"
-      widths={[640, 960, 1280]}
-      sizes="(min-width: 1200px) 1136px, 100vw"
-      quality={54}
-      class="zone-map-image"
-      loading="lazy"
-      decoding="async"
-    />
-
-    <figcaption class="zone-map-card">
-      <p class="text-eyebrow font-semibold uppercase tracking-[0.14em] text-ink-55">
-        Largest concentration
-      </p>
-      <p class="mt-2 text-h3">{largest.name}</p>
-      <p class="mt-2 text-small text-ink-70">
-        <span class="num">{largest.count}</span> packages across{' '}
-        <span class="num">{largest.suburbs.length}</span> suburbs — more than any other region,
-        and where our lowest entry price sits. The current site does not mention it at all.
-      </p>
-    </figcaption>
-  </figure>
+  </p>
 </Section>
 
 <style>
   .zones {
     display: grid;
-    gap: 1px;
-    margin-top: 3rem;
-    padding: 0;
-    list-style: none;
-    background-color: var(--color-rule);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  @media (min-width: 640px) {
-    .zones {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    gap: 1.5rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
   }
 
   @media (min-width: 1024px) {
     .zones {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 22rem minmax(0, 1fr);
+      gap: 2rem;
+      align-items: stretch;
     }
   }
 
-  .zone {
-    padding: 1.5rem;
-    background-color: var(--color-surface);
-  }
-
-  .zone-map {
-    position: relative;
-    margin: 3rem 0 0;
+  /* ---------------------------------------------------------------- List */
+  .zone-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
+    background-color: var(--color-surface);
     overflow: hidden;
   }
 
-  .zone-map-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
+  .zone-row {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1.125rem;
+    border-bottom: 1px solid var(--color-rule);
+    text-decoration: none;
+    transition: background-color var(--duration-micro) var(--ease-out);
   }
 
-  .zone-map-card {
-    padding: 1.5rem;
+  .zone-list li:last-child .zone-row {
+    border-bottom: 0;
+  }
+
+  .zone-row:hover,
+  .zone-row[data-active] {
     background-color: var(--color-limestone);
   }
 
-  @media (min-width: 768px) {
-    .zone-map-card {
-      position: absolute;
-      right: 1.5rem;
-      bottom: 1.5rem;
-      max-width: 24rem;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-float);
+  .zone-dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--color-forest);
+    background-color: var(--color-surface);
+    transition:
+      background-color var(--duration-micro) var(--ease-out),
+      transform var(--duration-micro) var(--ease-out);
+  }
+
+  .zone-row:hover .zone-dot,
+  .zone-row[data-active] .zone-dot {
+    background-color: var(--color-brick);
+    border-color: var(--color-brick);
+    transform: scale(1.25);
+  }
+
+  .zone-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+    min-width: 0;
+  }
+
+  .zone-name {
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .zone-suburb {
+    font-size: 0.6875rem;
+    color: var(--color-ink-55);
+  }
+
+  .zone-count {
+    margin-left: auto;
+    font-size: var(--text-small);
+    color: var(--color-ink-55);
+  }
+
+  /* ----------------------------------------------------------------- Map */
+  .zone-map {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .zone-map svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 800 / 520;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 1024px) {
+    .zone-map svg {
+      height: 100%;
+      aspect-ratio: auto;
     }
   }
 
-  .section-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 44px;
-    font-size: var(--text-small);
+  .map-ink {
+    color: var(--color-ink);
+  }
+
+  .map-land {
+    fill: var(--color-surface);
+  }
+
+  .map-bay {
+    fill: var(--color-forest);
+    opacity: 0.09;
+  }
+
+  .map-shore {
+    fill: none;
+    stroke: var(--color-forest);
+    stroke-opacity: 0.35;
+    stroke-width: 1.5;
+  }
+
+  .map-ring {
+    fill: none;
+    stroke: var(--color-forest);
+    stroke-opacity: 0.22;
+    stroke-width: 1;
+    stroke-dasharray: 4 6;
+  }
+
+  .map-ring-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    fill: var(--color-ink);
+    opacity: 0.4;
+  }
+
+  .map-cbd circle {
+    fill: var(--color-ink);
+  }
+
+  .map-water-label {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-style: italic;
+    fill: var(--color-ink);
+    opacity: 0.35;
+  }
+
+  .map-pin-count {
+    font-size: 13px;
+    font-weight: 500;
+    fill: var(--color-ink);
+    opacity: 0.4;
+    transition: opacity var(--duration-base) var(--ease-out);
+    paint-order: stroke;
+    stroke: var(--color-surface);
+    stroke-width: 4;
+  }
+
+  .map-pin:hover .map-pin-count,
+  .map-pin[data-active] .map-pin-count {
+    opacity: 0.75;
+  }
+
+  .map-cbd text {
+    font-family: var(--font-body);
+    font-size: 14px;
     font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    fill: var(--color-ink);
+    opacity: 0.7;
   }
 
-  .section-link :global(svg) {
-    transition: transform var(--duration-base) var(--ease-out);
+  .map-pin {
+    cursor: pointer;
+    outline: none;
   }
 
-  .section-link:hover :global(svg) {
-    transform: translateX(3px);
+  .map-pin-halo {
+    fill: var(--color-brick);
+    opacity: 0;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      r var(--duration-base) var(--ease-out);
+  }
+
+  .map-pin-dot {
+    fill: var(--color-forest);
+    stroke: var(--color-surface);
+    stroke-width: 3;
+    transition:
+      fill var(--duration-base) var(--ease-out),
+      stroke var(--duration-base) var(--ease-out);
+  }
+
+  .map-pin-label {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    fill: var(--color-ink);
+    opacity: 0.72;
+    transition: opacity var(--duration-base) var(--ease-out);
+    paint-order: stroke;
+    stroke: var(--color-surface);
+    stroke-width: 4;
+  }
+
+  .map-pin:hover .map-pin-halo,
+  .map-pin[data-active] .map-pin-halo {
+    opacity: 0.16;
+  }
+
+  .map-pin:hover .map-pin-dot,
+  .map-pin[data-active] .map-pin-dot {
+    fill: var(--color-brick);
+    stroke: var(--color-brick);
+  }
+
+  .map-pin:hover .map-pin-label,
+  .map-pin[data-active] .map-pin-label {
+    opacity: 1;
+  }
+
+  .map-pin:hover .map-pin-dot,
+  .map-pin[data-active] .map-pin-dot {
+    stroke-width: 4;
+  }
+
+  .zone-map-note {
+    padding: 0.75rem 1.125rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: var(--text-eyebrow);
+    color: var(--color-ink-55);
+  }
+
+  /* ------------------------------------------------------------ Footnote */
+  .zone-also {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-70);
+  }
+
+  .zone-also-label {
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-55);
+  }
+
+  .zone-also-place {
+    font-weight: 500;
   }
 </style>
+
+<script>
+  /* Hovering or focusing either half lights the other. Small enough to stay
+     inline; the whole behaviour is two class swaps. */
+  const root = document.querySelector<HTMLElement>('[data-locality]');
+  if (root) {
+    const rows = [...root.querySelectorAll<HTMLElement>('[data-estate]')];
+    const pins = [...root.querySelectorAll<SVGGElement>('[data-pin]')];
+
+    const setActive = (id: string | null) => {
+      for (const row of rows)
+        row.toggleAttribute('data-active', row.dataset.estate === id);
+      for (const pin of pins) {
+        const ids = (pin.dataset.pin ?? '').split(' ');
+        pin.toggleAttribute('data-active', id !== null && ids.includes(id));
+      }
+    };
+
+    for (const row of rows) {
+      row.addEventListener('pointerenter', () => setActive(row.dataset.estate ?? null));
+      row.addEventListener('focus', () => setActive(row.dataset.estate ?? null));
+      row.addEventListener('pointerleave', () => setActive(null));
+      row.addEventListener('blur', () => setActive(null));
+    }
+
+    for (const pin of pins) {
+      const first = (pin.dataset.pin ?? '').split(' ')[0] ?? null;
+      pin.addEventListener('pointerenter', () => setActive(first));
+      pin.addEventListener('pointerleave', () => setActive(null));
+      pin.addEventListener('click', () => {
+        rows.find((row) => row.dataset.estate === first)?.click();
+      });
+    }
+  }
+</script>

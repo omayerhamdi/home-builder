@@ -91,9 +91,12 @@ const budgetOptions = [
 </div>
 
 <style>
+  /* The horizontal padding matches the claim cell above exactly, so the
+     label and the fields start on the same line as the H1 rather than sitting
+     proud of it. The two cells are the same width; only the inset differed. */
   .finder {
     position: relative;
-    padding: clamp(1.25rem, 2.5vw, 1.5rem);
+    padding: clamp(1.5rem, 2.5vw, 2rem) clamp(32px, 4vw, 56px);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
     color: var(--color-ink);
@@ -206,5 +209,7 @@ const budgetOptions = [
       padding-inline: var(--spacing-gutter);
       padding-block: 1.5rem;
     }
+
+    /* The claim cell uses the same gutter below 768px, so they already agree. */
   }
 </style>

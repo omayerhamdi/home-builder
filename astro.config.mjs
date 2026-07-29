@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://dbn-homes.pages.dev',
+  site: 'https://dbnhomes.netlify.app',
   output: 'static',
   integrations: [sitemap()],
   build: {

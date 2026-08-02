@@ -154,17 +154,19 @@ const posterAlt =
     padding: 0 var(--spacing-gutter) var(--spacing-gutter);
   }
 
-  /* The section may exceed the viewport on short screens — cells are never
-     compressed to force a fit. */
+  /* The three cells own the first screen and nothing else does.
+     `100svh - header` puts the bottom edge of the hero exactly on the fold, so
+     the proof strip below always starts off screen. The grid's own bottom
+     padding is not subtracted as well — box-sizing is border-box, so it is
+     already inside this figure. The 600px floor is the one exception: on a
+     short laptop the cells run past the fold rather than be crushed to fit.
+     There is deliberately no ceiling — a capped hero was what let the proof
+     strip creep back into view on a 1080p screen. */
   @media (min-width: 1024px) {
     .hero-grid {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       grid-template-rows: 1fr auto;
-      min-height: clamp(
-        600px,
-        calc(100svh - var(--spacing-header-lg) - var(--spacing-gutter)),
-        840px
-      );
+      min-height: max(600px, calc(100svh - var(--spacing-header-lg)));
     }
 
     .cell-claim {
@@ -185,11 +187,7 @@ const posterAlt =
 
   @media (min-width: 768px) and (max-width: 1023px) {
     .hero-grid {
-      min-height: clamp(
-        560px,
-        calc(100svh - var(--spacing-header) - var(--spacing-gutter)),
-        880px
-      );
+      min-height: max(560px, calc(100svh - var(--spacing-header)));
     }
   }
 

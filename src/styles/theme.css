@@ -75,8 +75,14 @@
   --spacing-section: clamp(4.5rem, 3rem + 6vw, 9rem);
   --spacing-section-tight: clamp(3rem, 2rem + 4vw, 5.5rem);
   --spacing-gutter: clamp(1.25rem, 4vw, 3rem);
-  --container-content: 1200px;
-  --container-wide: 1440px;
+  /* One container, site-wide. There used to be two — 1200px for content and
+     1440px for the footer — and the footer was the only thing that ever used
+     the wider one, so the page visibly changed width at the last band. 1360px
+     is the settlement: wide enough that the hero fills a desktop screen
+     instead of sitting in a trench, narrower than the old footer, and it holds
+     a 12-column grid at a sane column width. Nothing may reintroduce a second
+     container; a section that needs to break out goes full-bleed instead. */
+  --container-content: 1360px;
   --container-prose: 34rem;
 
   /* Shape — nothing rounder than 8px. Large radii read as SaaS; this is

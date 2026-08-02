@@ -10,7 +10,7 @@ interface Props {
   id: string;
   band: 'paper' | 'surface' | 'limestone' | 'teal';
   labelledby?: string;
-  width?: 'content' | 'wide' | 'bleed';
+  width?: 'content' | 'bleed';
   tight?: boolean;
   class?: string;
 }
@@ -31,9 +31,10 @@ const bands = {
   teal: 'bg-teal text-surface',
 } as const;
 
+/* Two options only: on the container, or full-bleed. There is no middle
+   width — see the container note in theme.css. */
 const widths = {
   content: 'mx-auto max-w-content px-gutter',
-  wide: 'mx-auto max-w-wide px-gutter',
   bleed: '',
 } as const;
 ---

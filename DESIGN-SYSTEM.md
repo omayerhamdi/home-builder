@@ -106,7 +106,10 @@ from the document outline.
 - `--spacing-section: clamp(4.5rem, 3rem + 6vw, 9rem)` block padding;
   `--spacing-section-tight` for slim bands.
 - `--spacing-gutter: clamp(1.25rem, 4vw, 3rem)`.
-- Containers: `--container-content` 1200px, `--container-wide` 1440px.
+- **One container: `--container-content` 1360px.** Header, every homepage band, the mega
+  menu and the footer all sit on it. A section that needs to escape goes full-bleed
+  (`width="bleed"`); there is no intermediate width, because a second container is what
+  made the page change width at the footer.
 - 12 columns, and asymmetric splits (7/5, 8/4) are preferred over 6/6. Symmetry is what
   makes a page read as a template.
 - Radii: `--radius-sm` 2px, `--radius-md` 4px (default), `--radius-lg` 8px. Nothing
@@ -189,7 +192,7 @@ scroll-jacking, no counters that re-animate, no text that assembles letter by le
 | < 768px    | Sticky action bar (Call · Build a quote · Display). The hero video is never fetched — poster only. Region tabs scroll horizontally. |
 | 768–1023px | Drawer becomes a 26rem right-hand panel. The header keeps its _Build a quote_ button.                                               |
 | ≥ 1024px   | Full horizontal nav with mega menus, phone number visible.                                                                          |
-| ≥ 1200px   | Content container caps at 1200px; full-bleed grids at 1440px.                                                                       |
+| ≥ 1360px   | Content container caps at 1360px. Nothing sits on a wider container.                                                                |
 
 ## The mega menu
 

@@ -171,3 +171,21 @@ The obvious worry with images in navigation is the phone. Here each card sits in
 collapsed accordion, so a lazy image is never fetched until the visitor opens that section,
 and then only one 16:9 frame at 92vw. The alternative — dropping the images below 1024px —
 would have given tablet and phone visitors a visibly poorer menu for no measured saving.
+
+**One container, 1360px, and the second one is deleted.**
+The layout had two: `--container-content` at 1200px for everything, and `--container-wide`
+at 1440px. The footer was the only consumer of the wider one, so the page visibly changed
+width at the last band — and at 1200px the hero sat in a trench on a desktop screen. Both
+are now one 1360px container, used by the header, every homepage band, the mega menu and
+the footer. `--container-wide` and `Section`'s `width="wide"` variant are gone rather than
+left as aliases: a token that means "the other width" is how the inconsistency comes back.
+A section that genuinely needs to escape uses `width="bleed"`.
+
+**The hero owns the first screen; the proof strip starts below it.**
+`min-height: max(600px, calc(100svh - header))` on the hero grid puts its bottom edge on
+the fold exactly, so the four proof items are always the reward for the first scroll rather
+than a crowded fifth element competing with the claim. Two things were wrong before: the
+grid's bottom padding was subtracted as well as being inside the box (`box-sizing:
+border-box` already counts it), and an 840px ceiling meant that on a 1080p screen the hero
+stopped 150px short and the strip showed through. The 600px floor stays — on a short laptop
+the cells run past the fold rather than being crushed.

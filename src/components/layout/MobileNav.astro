@@ -1,6 +1,8 @@
 ---
+import { Picture } from 'astro:assets';
 import Logo from './Logo.astro';
 import Icon from '../ui/Icon.astro';
+import { navFeature } from '../../lib/images';
 import { site } from '../../lib/site';
 import type { NavItem } from '../../lib/nav';
 
@@ -80,14 +82,35 @@ const { nav } = Astro.props;
                       </ul>
                     </div>
                   ))}
-                  <a class="mobile-nav-promo" href={item.panel.promo.cta.href}>
-                    <span>
+                  <a
+                    class="mobile-nav-promo"
+                    href={item.panel.promo.cta.href}
+                    aria-label={`${item.panel.promo.heading} ${item.panel.promo.cta.label}`}
+                  >
+                    <span class="mobile-nav-promo-media">
+                      <Picture
+                        src={navFeature(item.panel.promo.image).src}
+                        alt={navFeature(item.panel.promo.image).alt}
+                        formats={['avif']}
+                        fallbackFormat="webp"
+                        widths={[400, 720]}
+                        sizes="(min-width: 480px) 380px, 92vw"
+                        quality={55}
+                        class="mobile-nav-promo-image"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                    <span class="mobile-nav-promo-text">
                       <span class="block font-semibold">{item.panel.promo.heading}</span>
                       <span class="num block text-small text-ink-70">
                         {item.panel.promo.body}
                       </span>
+                      <span class="mobile-nav-promo-cta">
+                        {item.panel.promo.cta.label}
+                        <Icon name="arrow-right" size={16} class="shrink-0" />
+                      </span>
                     </span>
-                    <Icon name="arrow-right" size={18} class="shrink-0" />
                   </a>
                 </div>
               </li>
@@ -152,7 +175,7 @@ const { nav } = Astro.props;
     inset: 0;
     border: 0;
     padding: 0;
-    background-color: rgb(22 33 31 / 0.5);
+    background-color: rgb(18 38 42 / 0.5);
     opacity: 0;
     transition: opacity var(--duration-base) var(--ease-out);
     cursor: default;
@@ -295,16 +318,51 @@ const { nav } = Astro.props;
     text-decoration: none;
   }
 
+  /* The same card as the desktop panel, stacked. It sits inside a collapsed
+     accordion, so the image is not fetched at all until the section is opened
+     — a picture in the drawer costs a phone nothing until it is asked for. */
   .mobile-nav-promo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    display: block;
     margin-top: 1rem;
-    padding: 1rem;
-    background-color: var(--color-limestone);
+    overflow: hidden;
+    background-color: var(--color-teal-tint);
     border-radius: var(--radius-md);
     text-decoration: none;
+  }
+
+  .mobile-nav-promo-media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background-color: var(--color-limestone);
+  }
+
+  .mobile-nav-promo-media :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mobile-nav-promo-media :global(.mobile-nav-promo-image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mobile-nav-promo-text {
+    display: block;
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .mobile-nav-promo-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-teal);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
   .mobile-nav-more-heading {
@@ -345,7 +403,7 @@ const { nav } = Astro.props;
     justify-content: center;
     min-height: 52px;
     border-radius: var(--radius-md);
-    background-color: var(--color-forest);
+    background-color: var(--color-teal);
     color: var(--color-surface);
     font-weight: 600;
     text-decoration: none;

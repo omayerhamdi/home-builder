@@ -14,36 +14,59 @@ that every quick rebuild arrives at.
 
 ## Colour
 
-Derived from Australian residential materials — Colorbond roof colours, brick, concrete
-primer — rather than a generic brand wheel.
+Built out from the client's brand teal, **`#017580`** — the colour of the DBN mark and of
+dbnhomes.com.au. The mark is no longer a foreign object the palette has to work around; it
+_is_ the palette. Everything else is a neutral tuned to sit under it: a teal-black for
+text, primed-concrete paper, a warm limestone counterweight, brick as signal.
 
-| Token                 | Value                  | Role                                                                  |
-| --------------------- | ---------------------- | --------------------------------------------------------------------- |
-| `--color-ink`         | `#16211F`              | Body text and headings. A desaturated green-black, not pure charcoal. |
-| `--color-forest`      | `#1F3B32`              | Primary. Buttons, dark bands, the closing CTA.                        |
-| `--color-forest-lift` | `#2E5245`              | Hover on forest surfaces.                                             |
-| `--color-forest-deep` | `#162923`              | Footer, hero letterbox fill.                                          |
-| `--color-paper`       | `#F1F3F2`              | Page base — the colour of primed concrete.                            |
-| `--color-surface`     | `#FFFFFF`              | Cards, panels, elevated content.                                      |
-| `--color-limestone`   | `#E4DFD3`              | Warm alternating band, promo panels, floorplan panels.                |
-| `--color-brick`       | `#8E3B2E`              | **Signal only.**                                                      |
-| `--color-rule`        | `rgb(22 33 31 / 0.12)` | Hairlines.                                                            |
-| `--color-mark`        | `#0B7C8A`              | The client's logo teal. Referenced, never restyled.                   |
+| Token               | Value                  | Role                                                                    |
+| ------------------- | ---------------------- | ----------------------------------------------------------------------- |
+| `--color-ink`       | `#12262A`              | Body text and headings. A teal-black, not pure charcoal.                |
+| `--color-teal`      | `#017580`              | **The brand colour, unaltered.** Buttons, links, masthead, closing CTA. |
+| `--color-teal-lift` | `#015D66`              | Hover on teal surfaces. Deeper, not lighter — see rule 4.               |
+| `--color-teal-deep` | `#06333A`              | Footer, hero letterbox fill. Same hue, chroma pulled back.              |
+| `--color-teal-tint` | `#E8F2F3`              | Pale wash: mega-menu picture bay, quiet panels.                         |
+| `--color-paper`     | `#F1F4F4`              | Page base — the colour of primed concrete.                              |
+| `--color-surface`   | `#FFFFFF`              | Cards, panels, elevated content.                                        |
+| `--color-limestone` | `#E6E1D6`              | Warm alternating band, promo panels, floorplan panels.                  |
+| `--color-brick`     | `#8E3B2E`              | **Signal only.**                                                        |
+| `--color-rule`      | `rgb(18 38 42 / 0.12)` | Hairlines.                                                              |
+| `--color-mark`      | `#017580`              | Alias for the logo colour. Now simply the brand teal.                   |
 
 **Discipline rules.**
 
 1. `--color-brick` may occupy no more than about 2% of any viewport. It is reserved for
    availability pills, the land segment of the dimension line, the step numbers in the
-   build process, and error states. Buttons are forest, never brick.
+   build process, and error states. Buttons are teal, never brick.
 2. Never two adjacent sections on the same background: paper → surface → limestone →
-   paper. Forest belongs to the closing CTA and the footer only.
+   paper. Full-strength teal belongs to the masthead, the closing CTA and the footer only.
 3. Borders, not shadows. Default card treatment is `1px solid var(--color-rule)`; the
    border darkens to `--color-rule-strong` on hover. Shadow is for genuinely floating UI.
+4. **Teal hovers go down, not up.** `#017580` carries white text at 5.44:1. Lightening it
+   drops that under 4.5:1, so every hover on a teal surface deepens instead. This is the
+   one place the palette does the opposite of what a lift normally means, and it is
+   deliberate.
+5. Teal is never set as body-size text on `--color-limestone` (4.18:1). Teal _icons_ on
+   limestone are fine — non-text contrast is a 3:1 bar, and there are four of them.
 
-**The logo.** The client's mark is teal, which does not sit inside this palette. It is
-never repainted: on light surfaces it renders exactly as supplied, and on dark bands it is
-reversed to monochrome white (`filter: brightness(0) invert(1)`). The palette is not bent
-around it.
+### Measured contrast
+
+| Pair                                  | Ratio     |
+| ------------------------------------- | --------- |
+| White on `--color-teal`               | 5.44:1 ✓  |
+| White on `--color-teal-lift`          | 7.61:1 ✓  |
+| White on `--color-teal-deep`          | 13.62:1 ✓ |
+| `--color-teal` on white               | 5.44:1 ✓  |
+| `--color-teal` on `--color-paper`     | 4.92:1 ✓  |
+| `--color-teal` on `--color-teal-tint` | 4.78:1 ✓  |
+| `--color-ink` on `--color-paper`      | 14.21:1 ✓ |
+| `--color-brick` on white              | 7.46:1 ✓  |
+
+Every text pair the site actually renders clears WCAG 2.1 AA at normal size.
+
+**The logo.** The mark renders exactly as supplied on light surfaces, and is reversed to
+monochrome white (`filter: brightness(0) invert(1)`) on the teal masthead and the footer.
+It no longer sits outside the palette — the palette was rebuilt around it.
 
 ## Type
 
@@ -92,13 +115,13 @@ from the document outline.
 ## Components
 
 **Buttons** — one component, three variants, two tones (`light` on pale surfaces, `dark`
-on forest and over the hero scrim).
+on teal and over the hero scrim).
 
-| Variant   | Spec                                                                                                       |
-| --------- | ---------------------------------------------------------------------------------------------------------- |
-| Primary   | Forest fill, white text, 4px radius, 52px tall (48px on mobile). Hover lifts 1px to `--color-forest-lift`. |
-| Secondary | Transparent with a 1px ink border. Hover inverts to an ink fill.                                           |
-| Tertiary  | Ink text, underline at 4px offset, trailing arrow that shifts 3px on hover.                                |
+| Variant   | Spec                                                                                                     |
+| --------- | -------------------------------------------------------------------------------------------------------- |
+| Primary   | Forest fill, white text, 4px radius, 52px tall (48px on mobile). Hover lifts 1px to `--color-teal-lift`. |
+| Secondary | Transparent with a 1px ink border. Hover inverts to an ink fill.                                         |
+| Tertiary  | Ink text, underline at 4px offset, trailing arrow that shifts 3px on hover.                              |
 
 Every interactive element gets `outline: 2px solid currentColor; outline-offset: 3px` on
 `:focus-visible`, and a minimum target of 44×44px.
@@ -129,7 +152,7 @@ opens it up.
   on a total labelled _Nothing more to pay_.
 
 Geometry is real SVG so the ticks stay hairlines at any width; labels are HTML so they
-hold their true 12px rather than scaling with the drawing. Strokes are `--color-forest` at
+hold their true 12px rather than scaling with the drawing. Strokes are `--color-teal` at
 40% opacity, and the land segment is the one place `--color-brick` appears in the
 component. Segment widths are computed from the values passed in — never hardcoded.
 
@@ -167,3 +190,28 @@ scroll-jacking, no counters that re-animate, no text that assembles letter by le
 | 768–1023px | Drawer becomes a 26rem right-hand panel. The header keeps its _Build a quote_ button.                                               |
 | ≥ 1024px   | Full horizontal nav with mega menus, phone number visible.                                                                          |
 | ≥ 1200px   | Content container caps at 1200px; full-bleed grids at 1440px.                                                                       |
+
+## The mega menu
+
+Two bays, modelled on carlislehomes.com.au.
+
+**Left — link columns.** Two or three, separated by hairlines, each heading on its own
+rule. Aligned to the 1200px container: the panel carries
+`padding-left: max(gutter, (100% - container) / 2)`. That declaration has to sit on the
+full-width panel, not on the grid item, because a percentage padding resolves against the
+element's own containing block — on a grid item that is the track, not the bar.
+
+**Right — one picture.** A tinted bay (`--color-teal-tint`) that runs off the right edge of
+the viewport while the columns stay on the grid, which is what stops the panel reading as a
+floating card. Inside it: a 16:9 image, the promo heading, the data-derived line, and the
+CTA. The whole card is one anchor — one tab stop, one hit target.
+
+The picture bay is `clamp(19rem, 27vw, 26rem)`, so the three-column _House & land_ panel
+still has room at 1024px.
+
+**Below 1024px** the same card appears in the drawer accordion, stacked: image, heading,
+body, CTA. It sits inside a collapsed panel, so the lazy image is not fetched until the
+visitor opens that section.
+
+**Open state.** The bar item carries a 2px rule under its label. The chevron rotates 180°;
+one icon rotated, never two swapped, so it ports to Elementor's nav widget.

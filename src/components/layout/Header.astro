@@ -1,15 +1,17 @@
 ---
+import { Picture } from 'astro:assets';
 import Logo from './Logo.astro';
 import MobileNav from './MobileNav.astro';
 import Icon from '../ui/Icon.astro';
 import { buildPrimaryNav } from '../../lib/nav';
+import { navFeature } from '../../lib/images';
 import { site } from '../../lib/site';
 
 /**
  * Site header.
  *
  * Sticky rather than fixed, so it sits in normal flow and no page has to
- * reserve space for it. On the homepage it is `tone="forest"` and sits flush
+ * reserve space for it. On the homepage it is `tone="teal"` and sits flush
  * against the hero's claim cell with no gap and no border — header and cell
  * read as one dark block. Everywhere else it is a white bar with a hairline.
  *
@@ -17,7 +19,7 @@ import { site } from '../../lib/site';
  * moves into a drawer.
  */
 interface Props {
-  tone?: 'surface' | 'forest';
+  tone?: 'surface' | 'teal';
 }
 
 const { tone = 'surface' } = Astro.props;
@@ -79,15 +81,38 @@ const primaryNav = await buildPrimaryNav();
                         ))}
                       </div>
 
-                      <div class="mega-promo">
-                        <p class="mega-promo-heading">{item.panel.promo.heading}</p>
-                        <p class="num mega-promo-body">{item.panel.promo.body}</p>
-                        <span class="mega-promo-cta">
-                          {item.panel.promo.cta.label}
-                          <Icon name="arrow-right" size={16} />
-                        </span>
-                        <a class="mega-promo-hit" href={item.panel.promo.cta.href}>
-                          <span class="sr-only">{item.panel.promo.cta.label}</span>
+                      <div class="mega-feature">
+                        {/* Named explicitly: without this the link picks up the
+                            image alt, the heading, the derived line and the CTA
+                            as one run-on string. The alt stays meaningful for
+                            anyone browsing images. */}
+                        <a
+                          class="mega-card"
+                          href={item.panel.promo.cta.href}
+                          aria-label={`${item.panel.promo.heading} ${item.panel.promo.cta.label}`}
+                        >
+                          <span class="mega-card-media">
+                            <Picture
+                              src={navFeature(item.panel.promo.image).src}
+                              alt={navFeature(item.panel.promo.image).alt}
+                              formats={['avif']}
+                              fallbackFormat="webp"
+                              widths={[400, 800]}
+                              sizes="(min-width: 1280px) 400px, 340px"
+                              quality={55}
+                              class="mega-card-image"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </span>
+                          <span class="mega-card-heading">
+                            {item.panel.promo.heading}
+                          </span>
+                          <span class="num mega-card-body">{item.panel.promo.body}</span>
+                          <span class="mega-card-cta">
+                            {item.panel.promo.cta.label}
+                            <Icon name="arrow-right" size={16} />
+                          </span>
                         </a>
                       </div>
                     </div>
@@ -146,16 +171,16 @@ const primaryNav = await buildPrimaryNav();
   }
 
   /* Flush against the hero's claim cell — no border, no gap, one dark block. */
-  .tone-forest {
-    background-color: var(--color-forest);
+  .tone-teal {
+    background-color: var(--color-teal);
     color: var(--color-surface);
   }
 
-  .tone-forest .header-bar {
-    background-color: var(--color-forest);
+  .tone-teal .header-bar {
+    background-color: var(--color-teal);
   }
 
-  .tone-forest .header-logo :global(img) {
+  .tone-teal .header-logo :global(img) {
     filter: brightness(0) invert(1);
   }
 
@@ -193,6 +218,27 @@ const primaryNav = await buildPrimaryNav();
 
   .nav-link:hover {
     opacity: 0.72;
+  }
+
+  /* The open item carries a rule under its label, so the bar shows which panel
+     is down. It sits on the link's own bottom edge, not the header's — the
+     item has to stay `position: static` for the panel below to span the
+     viewport, which rules out measuring against the bar. */
+  .nav-link[aria-expanded='true'] {
+    opacity: 1;
+  }
+
+  .nav-item .nav-link {
+    position: relative;
+  }
+
+  .nav-link[aria-expanded='true']::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0.75rem;
+    bottom: 0.375rem;
+    height: 2px;
+    background-color: currentcolor;
   }
 
   /* One chevron, rotated. Not two icons swapped — a single rotated mark is
@@ -242,7 +288,7 @@ const primaryNav = await buildPrimaryNav();
     height: 44px;
     padding-inline: 1.25rem;
     border-radius: var(--radius-md);
-    background-color: var(--color-forest);
+    background-color: var(--color-teal);
     color: var(--color-surface);
     font-size: var(--text-small);
     font-weight: 600;
@@ -252,7 +298,7 @@ const primaryNav = await buildPrimaryNav();
   }
 
   .header-cta:hover {
-    background-color: var(--color-forest-lift);
+    background-color: var(--color-teal-lift);
   }
 
   @media (min-width: 768px) {
@@ -261,12 +307,12 @@ const primaryNav = await buildPrimaryNav();
     }
   }
 
-  .tone-forest .header-cta {
+  .tone-teal .header-cta {
     background-color: var(--color-surface);
-    color: var(--color-forest);
+    color: var(--color-teal);
   }
 
-  .tone-forest .header-cta:hover {
+  .tone-teal .header-cta:hover {
     background-color: var(--color-limestone);
   }
 
@@ -282,7 +328,7 @@ const primaryNav = await buildPrimaryNav();
     cursor: pointer;
   }
 
-  .tone-forest .header-toggle {
+  .tone-teal .header-toggle {
     border-color: rgb(255 255 255 / 0.35);
   }
 
@@ -293,13 +339,29 @@ const primaryNav = await buildPrimaryNav();
   }
 
   /* --------------------------------------------------------------------
-     Mega menu — columns separated by real hairlines, each heading on its own
-     rule, so two lists side by side can never read as one.
+     Mega menu.
+
+     Two bays: link columns on the left, one picture on the right. The right
+     bay is tinted and bleeds to the viewport edge while its contents stay on
+     the 1200px grid — that is what makes the panel read as part of the page
+     rather than as a floating card. The bleed is done with asymmetric padding
+     (`--mega-bleed`) rather than a pseudo-element, so there is exactly one box
+     to reason about at every width.
+
+     Columns keep their hairlines: two lists side by side must never read as
+     one, and at three columns the rules are doing real work.
   -------------------------------------------------------------------- */
   .mega {
     position: absolute;
     inset-inline: 0;
     top: 100%;
+    /* Half the leftover space beside the content container, never less than the
+       gutter, so the link columns land on the same grid as the page below.
+       It has to sit here, on the full-width box: a percentage in a padding
+       resolves against the element's own containing block, and on a grid item
+       that is the track, not the bar. There is no right padding — the picture
+       bay is meant to run off the edge. */
+    padding-left: max(var(--spacing-gutter), calc((100% - var(--container-content)) / 2));
     background-color: var(--color-surface);
     border-bottom: 1px solid var(--color-rule);
     box-shadow: var(--shadow-float);
@@ -312,17 +374,21 @@ const primaryNav = await buildPrimaryNav();
 
   .mega-inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 20rem;
-    gap: 2.5rem;
-    max-width: var(--container-content);
-    margin-inline: auto;
-    padding: 2.25rem var(--spacing-gutter) 2.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, clamp(19rem, 27vw, 26rem));
   }
 
   .mega-columns {
     display: grid;
     grid-template-columns: repeat(var(--mega-cols, 2), minmax(0, 1fr));
     column-gap: 2.5rem;
+    padding: 2.25rem 2.5rem 2.75rem 0;
+  }
+
+  /* The picture bay, tinted and running to the right edge of the viewport. */
+  .mega-feature {
+    padding: 2.25rem clamp(1.5rem, 3vw, 2.5rem) 2.75rem;
+    background-color: var(--color-teal-tint);
+    border-left: 1px solid var(--color-rule);
   }
 
   .mega-column + .mega-column {
@@ -380,62 +446,98 @@ const primaryNav = await buildPrimaryNav();
     letter-spacing: 0.02em;
   }
 
-  .mega-promo {
-    position: relative;
+  /* One card, one picture. The whole thing is a single anchor, so there is one
+     tab stop and one hit target rather than an overlay chasing a link. */
+  .mega-card {
     display: flex;
     flex-direction: column;
-    align-self: start;
     gap: 0.5rem;
-    padding: 1.75rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .mega-card-media {
+    display: block;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
     border-radius: var(--radius-md);
+    /* Holds the box while the image decodes, so the panel never reflows as it
+       opens — the menu is the one place a layout shift is unforgivable. */
+    aspect-ratio: 16 / 9;
     background-color: var(--color-limestone);
   }
 
-  .mega-promo-heading {
+  /* `<Picture>` emits a <picture> wrapper, which is inline by default — without
+     this the img sizes itself and the aspect-ratio box above it does nothing. */
+  .mega-card-media :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mega-card-media :global(.mega-card-image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-image) var(--ease-out);
+  }
+
+  .mega-card:hover .mega-card-media :global(.mega-card-image) {
+    transform: scale(1.03);
+  }
+
+  .mega-card-heading {
     font-family: var(--font-display);
     font-variation-settings: 'wdth' 112;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
-  .mega-promo-body {
+  .mega-card-body {
     font-size: var(--text-small);
     color: var(--color-ink-70);
   }
 
-  .mega-promo-cta {
+  .mega-card-cta {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 0.75rem;
+    margin-top: 0.25rem;
     font-size: var(--text-small);
     font-weight: 600;
+    color: var(--color-teal);
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 
-  .mega-promo-cta :global(svg) {
+  .mega-card-cta :global(svg) {
     transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .mega-promo:hover .mega-promo-cta :global(svg) {
+  .mega-card:hover .mega-card-cta :global(svg) {
     transform: translateX(3px);
   }
 
-  .mega-promo-hit {
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-md);
+  @media (prefers-reduced-motion: reduce) {
+    .mega-card-media :global(.mega-card-image),
+    .mega-card-cta :global(svg) {
+      transition: none;
+    }
+
+    .mega-card:hover .mega-card-media :global(.mega-card-image),
+    .mega-card:hover .mega-card-cta :global(svg) {
+      transform: none;
+    }
   }
 
   .mega-backdrop {
     position: fixed;
     inset: 0;
     top: var(--spacing-header-lg);
-    background-color: rgb(22 33 31 / 0.28);
+    background-color: rgb(18 38 42 / 0.28);
     z-index: -1;
   }
 

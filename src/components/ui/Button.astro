@@ -4,7 +4,7 @@ import Icon, { type IconName } from './Icon.astro';
 /**
  * One button component, four variants, two tones.
  *
- * `tone="dark"` is for buttons on forest or over the hero scrim.
+ * `tone="dark"` is for buttons on teal or over the hero scrim.
  * `variant="glass"` is the secondary treatment over imagery: a translucent
  * pane with a blurred backdrop, so it reads as a control sitting on the film
  * rather than an outline lost in it. Where backdrop-filter is unavailable the
@@ -92,18 +92,18 @@ const Tag = href ? 'a' : 'button';
 
   /* Primary ---------------------------------------------------------- */
   .btn-primary.tone-light {
-    background-color: var(--color-forest);
+    background-color: var(--color-teal);
     color: var(--color-surface);
   }
 
   .btn-primary.tone-light:hover {
-    background-color: var(--color-forest-lift);
+    background-color: var(--color-teal-lift);
     transform: translateY(-1px);
   }
 
   .btn-primary.tone-dark {
     background-color: var(--color-surface);
-    color: var(--color-forest);
+    color: var(--color-teal);
   }
 
   .btn-primary.tone-dark:hover {
@@ -133,7 +133,7 @@ const Tag = href ? 'a' : 'button';
 
   .btn-secondary.tone-dark:hover {
     background-color: var(--color-surface);
-    color: var(--color-forest);
+    color: var(--color-teal);
   }
 
   /* Glass — for use over imagery ------------------------------------- */
@@ -158,14 +158,14 @@ const Tag = href ? 'a' : 'button';
   }
 
   .btn-glass.tone-light {
-    background-color: rgb(22 33 31 / 0.06);
+    background-color: rgb(18 38 42 / 0.06);
     border-color: var(--color-rule-strong);
     color: var(--color-ink);
     box-shadow: none;
   }
 
   .btn-glass.tone-light:hover {
-    background-color: rgb(22 33 31 / 0.1);
+    background-color: rgb(18 38 42 / 0.1);
   }
 
   /* Tertiary --------------------------------------------------------- */

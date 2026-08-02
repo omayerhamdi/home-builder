@@ -13,6 +13,8 @@ import facadeStandardB from '../assets/img/designs/facade-standard-b.jpg';
 import facadeWideA from '../assets/img/designs/facade-wide-a.jpg';
 import facadeWideB from '../assets/img/designs/facade-wide-b.jpg';
 import facadeXwideA from '../assets/img/designs/facade-xwide-a.jpg';
+import estateAerialFrames from '../assets/img/estates/estate-aerial-frames.jpg';
+import kitchenIsland from '../assets/img/interiors/kitchen-island.jpg';
 
 /**
  * Data records refer to images by key so that the JSON stays portable to a
@@ -40,4 +42,34 @@ export function facadeImage(key: string): ImageMetadata {
   const image = facades[key as FacadeKey];
   if (!image) throw new Error(`Unknown façade image key: ${key}`);
   return image;
+}
+
+/**
+ * Feature images for the mega menu and the drawer.
+ *
+ * Alt text is stored here rather than in `nav.ts` deliberately: the menu data
+ * describes structure, the asset describes itself. Keeping the two together is
+ * what stops an image being swapped without its description following. Every
+ * entry is a real client asset already inventoried in ASSETS.md — the menu
+ * introduces no new photography.
+ */
+const navFeatures = {
+  'facade-modern': {
+    src: facadeModern,
+    alt: 'The Modern façade on the Corella 22 — rendered feature wall, timber-look garage door and grey brickwork',
+  },
+  'estate-aerial-frames': {
+    src: estateAerialFrames,
+    alt: 'Aerial view of a Melbourne growth-corridor estate — completed DBN homes alongside slabs and frames on the next release',
+  },
+  'kitchen-island': {
+    src: kitchenIsland,
+    alt: 'Kitchen and island bench in a LuxeTurnkey home — dark overhead cabinetry, 900mm cooktop and canopy rangehood',
+  },
+} as const satisfies Record<string, { src: ImageMetadata; alt: string }>;
+
+export type NavFeatureKey = keyof typeof navFeatures;
+
+export function navFeature(key: NavFeatureKey): { src: ImageMetadata; alt: string } {
+  return navFeatures[key];
 }

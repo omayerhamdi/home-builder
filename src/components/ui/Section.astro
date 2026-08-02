@@ -3,12 +3,12 @@
  * Section shell.
  *
  * Owns the band rhythm so that no two adjacent sections ever land on the same
- * background: paper → surface → limestone → paper, with forest reserved for
+ * background: paper → surface → limestone → paper, with teal reserved for
  * the closing call to action and the footer.
  */
 interface Props {
   id: string;
-  band: 'paper' | 'surface' | 'limestone' | 'forest';
+  band: 'paper' | 'surface' | 'limestone' | 'teal';
   labelledby?: string;
   width?: 'content' | 'wide' | 'bleed';
   tight?: boolean;
@@ -28,7 +28,7 @@ const bands = {
   paper: 'bg-paper text-ink',
   surface: 'bg-surface text-ink',
   limestone: 'bg-limestone text-ink',
-  forest: 'bg-forest text-surface',
+  teal: 'bg-teal text-surface',
 } as const;
 
 const widths = {

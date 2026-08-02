@@ -11,7 +11,7 @@ interface Props {
   description: string;
   /** 1200×630, per page type. Never the favicon. */
   ogImage?: string;
-  /** True on the homepage, where the header is the hero's forest masthead. */
+  /** True on the homepage, where the header is the hero's teal masthead. */
   masthead?: boolean;
 }
 
@@ -131,7 +131,7 @@ const businessSchema = {
 
   <body>
     <SkipLink />
-    <Header tone={masthead ? 'forest' : 'surface'} />
+    <Header tone={masthead ? 'teal' : 'surface'} />
 
     <main id="main">
       <slot />

@@ -52,20 +52,20 @@ the thirteen designs (only Corella 25 is held here), and the standard inclusions
 
 ### Client assets — used as supplied
 
-| Path                                              | Source                          | Where used                      | Alt text                                                                                                     |
-| ------------------------------------------------- | ------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `src/assets/img/brand/dbn-homes-logo.png`         | Client brand file               | Header, drawer, footer          | `DBN Homes`                                                                                                  |
-| `src/assets/img/designs/facade-modern.jpg`        | Client façade render            | Corella 22 card; package cards  | The Modern façade on the Corella 22 — rendered feature wall, timber-look garage door and grey brickwork      |
-| `src/assets/img/designs/facade-rise.jpg`          | Client façade render            | Ofarell 16 card; package cards  | The Rise façade — double garage, white render and a low charcoal roof set behind native landscaping          |
-| `src/assets/img/designs/facade-freedom.jpg`       | Client façade render            | Tennyson 17 card; package cards | The Freedom façade — single garage, brick and render mix with a recessed entry under a dark tiled roof       |
-| `src/assets/img/designs/facade-fresh.jpg`         | Client façade render            | Corella 18 card; package cards  | The Fresh façade — double garage in dark brick with a full-height living room window and a charcoal roof     |
-| `src/assets/img/designs/floorplan-corella-25.png` | Client floorplan                | Held for the single design page | Corella 25 floorplan                                                                                         |
-| `src/assets/img/interiors/kitchen-island.jpg`     | Client display-home photography | LuxeTurnkey tier card           | Kitchen and island bench in a LuxeTurnkey home — dark overhead cabinetry, 900mm cooktop and canopy rangehood |
-| `src/assets/img/interiors/kitchen-galley.jpg`     | Client display-home photography | SmartSpecs tier card            | Galley kitchen in a SmartSpecs home — stone benchtops, stainless appliances and timber-look flooring         |
-| `src/assets/img/interiors/kitchen-pantry.jpg`     | Client display-home photography | Certainty section, 4:5          | Kitchen in a completed DBN home — stone benchtop, 900mm upright oven, canopy rangehood and a walk-in pantry  |
-| `src/assets/img/interiors/bedroom.jpg`            | Client display-home photography | Held for later pages            | —                                                                                                            |
-| `src/assets/img/interiors/study-nook.jpg`         | Client display-home photography | Held for later pages            | —                                                                                                            |
-| `src/assets/img/interiors/selection-studio.jpg`   | Client display-home photography | Held for later pages            | —                                                                                                            |
+| Path                                              | Source                          | Where used                                             | Alt text                                                                                                     |
+| ------------------------------------------------- | ------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `src/assets/img/brand/dbn-homes-logo.png`         | Client brand file               | Header, drawer, footer                                 | `DBN Homes`                                                                                                  |
+| `src/assets/img/designs/facade-modern.jpg`        | Client façade render            | Corella 22 card; package cards; Home designs mega menu | The Modern façade on the Corella 22 — rendered feature wall, timber-look garage door and grey brickwork      |
+| `src/assets/img/designs/facade-rise.jpg`          | Client façade render            | Ofarell 16 card; package cards                         | The Rise façade — double garage, white render and a low charcoal roof set behind native landscaping          |
+| `src/assets/img/designs/facade-freedom.jpg`       | Client façade render            | Tennyson 17 card; package cards                        | The Freedom façade — single garage, brick and render mix with a recessed entry under a dark tiled roof       |
+| `src/assets/img/designs/facade-fresh.jpg`         | Client façade render            | Corella 18 card; package cards                         | The Fresh façade — double garage in dark brick with a full-height living room window and a charcoal roof     |
+| `src/assets/img/designs/floorplan-corella-25.png` | Client floorplan                | Held for the single design page                        | Corella 25 floorplan                                                                                         |
+| `src/assets/img/interiors/kitchen-island.jpg`     | Client display-home photography | LuxeTurnkey tier card; Inclusions mega menu            | Kitchen and island bench in a LuxeTurnkey home — dark overhead cabinetry, 900mm cooktop and canopy rangehood |
+| `src/assets/img/interiors/kitchen-galley.jpg`     | Client display-home photography | SmartSpecs tier card                                   | Galley kitchen in a SmartSpecs home — stone benchtops, stainless appliances and timber-look flooring         |
+| `src/assets/img/interiors/kitchen-pantry.jpg`     | Client display-home photography | Certainty section, 4:5                                 | Kitchen in a completed DBN home — stone benchtop, 900mm upright oven, canopy rangehood and a walk-in pantry  |
+| `src/assets/img/interiors/bedroom.jpg`            | Client display-home photography | Held for later pages                                   | —                                                                                                            |
+| `src/assets/img/interiors/study-nook.jpg`         | Client display-home photography | Held for later pages                                   | —                                                                                                            |
+| `src/assets/img/interiors/selection-studio.jpg`   | Client display-home photography | Held for later pages                                   | —                                                                                                            |
 
 ### Frames pulled from the client's own display-home film
 
@@ -73,15 +73,15 @@ The client supplied a 31-second display-home and estate film. It is the stronges
 material available: an aerial pass over a live growth-corridor estate, with slabs and
 frames alongside finished homes. Nobody else in this segment shows the build stage.
 
-| Path                                              | Where used                          | Alt text                                                                                                                                     |
-| ------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/video/dbn-display-home.mp4` / `.webm`     | Hero, above 768px only              | — (decorative, `aria-hidden`)                                                                                                                |
-| `src/assets/img/hero/hero-poster.jpg`             | Hero poster, 16:9 — the LCP element | A completed DBN home on its lot in a Melbourne growth-corridor estate, seen from the air with the driveway, fencing and landscaping finished |
-| `src/assets/img/hero/hero-poster-mobile.jpg`      | Hero poster, 4:5 mobile crop        | as above                                                                                                                                     |
-| `src/assets/img/estates/estate-aerial-frames.jpg` | Where we build, 16:9                | Aerial view of a Melbourne growth-corridor estate — completed DBN homes alongside slabs and frames on the next release                       |
-| `src/assets/img/estates/home-on-lot-aerial.jpg`   | Held for later pages                | —                                                                                                                                            |
-| `src/assets/img/interiors/living-dining.jpg`      | Held for later pages                | —                                                                                                                                            |
-| `public/og/home.jpg`                              | `og:image`, 1200×630                | —                                                                                                                                            |
+| Path                                              | Where used                                   | Alt text                                                                                                                                     |
+| ------------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/video/dbn-display-home.mp4` / `.webm`     | Hero, above 768px only                       | — (decorative, `aria-hidden`)                                                                                                                |
+| `src/assets/img/hero/hero-poster.jpg`             | Hero poster, 16:9 — the LCP element          | A completed DBN home on its lot in a Melbourne growth-corridor estate, seen from the air with the driveway, fencing and landscaping finished |
+| `src/assets/img/hero/hero-poster-mobile.jpg`      | Hero poster, 4:5 mobile crop                 | as above                                                                                                                                     |
+| `src/assets/img/estates/estate-aerial-frames.jpg` | Where we build, 16:9; House & land mega menu | Aerial view of a Melbourne growth-corridor estate — completed DBN homes alongside slabs and frames on the next release                       |
+| `src/assets/img/estates/home-on-lot-aerial.jpg`   | Held for later pages                         | —                                                                                                                                            |
+| `src/assets/img/interiors/living-dining.jpg`      | Held for later pages                         | —                                                                                                                                            |
+| `public/og/home.jpg`                              | `og:image`, 1200×630                         | —                                                                                                                                            |
 
 The video segment is 10 seconds from 9.0s, encoded to 1280×720 H.264 (1.2 MB) plus VP9
 WebM (1.9 MB), **with no audio track at all**. The poster is a frame from the same

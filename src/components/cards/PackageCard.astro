@@ -68,7 +68,7 @@ const location = [estateName, `${pkg.suburb} ${pkg.postcode}`]
     />
 
     <div class="pkg-availability">
-      <Pill tone={pkg.availability === 'titled' ? 'forest' : 'brick'}>
+      <Pill tone={pkg.availability === 'titled' ? 'teal' : 'brick'}>
         {pkg.availability === 'titled' ? 'Titled now' : `Title ${pkg.titleDate}`}
       </Pill>
     </div>
@@ -126,7 +126,7 @@ const location = [estateName, `${pkg.suburb} ${pkg.postcode}`]
     {
       (stampDutyExempt || fhog) && (
         <p class="pkg-badge">
-          <Icon name="check" size={15} class="shrink-0 text-forest" />
+          <Icon name="check" size={15} class="shrink-0 text-teal" />
           {stampDutyExempt
             ? 'No stamp duty and eligible for the $10,000 grant'
             : 'Eligible for the $10,000 First Home Owner Grant'}
@@ -193,7 +193,7 @@ const location = [estateName, `${pkg.suburb} ${pkg.postcode}`]
     gap: 0.125rem;
     padding: 2.5rem 1.25rem 1rem;
     color: var(--color-surface);
-    background: linear-gradient(to top, rgb(22 33 31 / 0.85), rgb(22 33 31 / 0));
+    background: linear-gradient(to top, rgb(18 38 42 / 0.85), rgb(18 38 42 / 0));
   }
 
   .pkg-body {

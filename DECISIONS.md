@@ -12,7 +12,7 @@ verified records plus generated ones confined to confirmed estates, and every co
 page is derived from that data at build time. The site says less and means all of it.
 
 **The homepage is composed twice, not once.**
-Below 768px the film and the words are separated: a media block, then a solid forest panel
+Below 768px the film and the words are separated: a media block, then a solid teal panel
 carrying the headline. Type never sits over moving video on a phone, so contrast is fixed
 rather than fighting a scrim that changes brightness every frame. From 768px up the film
 goes full-bleed behind a three-layer scrim.
@@ -45,7 +45,7 @@ the pair sits in a well that fills on hover so the trigger has a real target.
 
 **The closing CTA sits on photography, the footer stays flat.**
 Two adjacent dark bands of the same flat colour read as one long slab. Putting the CTA on a
-deep forest wash over a real DBN home separates them and gives the last screen before the
+deep teal wash over a real DBN home separates them and gives the last screen before the
 small print something to look at.
 
 **Astro at its current major, not the version named in the original spec.**
@@ -139,3 +139,35 @@ Every review record carries `publishApproved: false` until then.
 **`robots.txt` disallows everything and every page is `noindex`.**
 This is a preview build. It must never be indexed alongside the production site. Removing
 this is a deliberate later decision, not a default.
+
+**The palette was rebuilt on the client's brand teal, `#017580`.**
+The first build derived its colour from Australian residential materials — Colorbond roof
+greens, brick, primed concrete — and treated the client's teal mark as something the
+palette had to tolerate rather than express. The client asked for their brand colour to be
+maintained, and they were right to. The greens are gone; `#017580` is now the primary,
+used unaltered on the masthead, the buttons, the links and the closing CTA. Two derivations
+carry the weight the single brand value cannot: `--color-teal-deep` (`#06333A`) for the
+footer and the hero letterbox, because full-strength teal across a 900px band is a wall of
+saturation, and `--color-teal-tint` (`#E8F2F3`) for quiet panels. The token was renamed
+`--color-forest` → `--color-teal` throughout rather than left as a green name holding a
+teal value.
+
+**Hovers on teal deepen instead of lifting.**
+`#017580` carries white text at 5.44:1 — enough for AA at any size, but with no headroom.
+Lightening it for hover, which is what the old `--color-forest-lift` did, drops the label
+under 4.5:1. Every teal hover therefore goes to `#015D66` (7.61:1). It is the opposite of
+what "lift" normally means, so the token comment says why.
+
+**The mega menu carries one picture, not two.**
+Modelled on carlislehomes.com.au: link columns on the left, a tinted bay on the right that
+bleeds to the viewport edge while the columns stay on the 1200px grid. Carlisle runs two
+image cards per panel; this build runs one, because `content.md` sanctions exactly one
+promo per menu and a second card would mean inventing copy to fill a layout. The picture
+is a real client asset already inventoried in `ASSETS.md` — the menu introduces no new
+photography.
+
+**The drawer gets the same picture, and it costs nothing until opened.**
+The obvious worry with images in navigation is the phone. Here each card sits inside a
+collapsed accordion, so a lazy image is never fetched until the visitor opens that section,
+and then only one 16:9 frame at 92vw. The alternative — dropping the images below 1024px —
+would have given tablet and phone visitors a visibly poorer menu for no measured saving.

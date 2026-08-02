@@ -71,7 +71,7 @@ tools/                   generate-packages.mjs
 - **Borders, not shadows.** Shadow is reserved for genuinely floating UI — dropdowns,
   drawers, sticky bars.
 - **Never two adjacent sections on the same background.** paper → surface → limestone →
-  paper, with forest kept for the closing CTA and the footer.
+  paper, with teal kept for the closing CTA and the footer.
 - **Nothing invented.** Every price, area and inclusion comes from a public source. Any
   value that could not be verified is flagged `verified: false` and listed in
   [DATA-VERIFICATION.md](DATA-VERIFICATION.md).

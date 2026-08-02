@@ -19,7 +19,7 @@ import posterTall from '../../assets/img/hero/hero-poster-mobile.jpg';
  *   │ C · Finder     cols 1–7   │ rows 1–2 │
  *   └───────────────────────────┴──────────┘
  *
- * The header above is the same forest as cell A and sits flush against it, so
+ * The header above is the same teal as cell A and sits flush against it, so
  * the two read as one dark block. The proof strip is a sibling section below,
  * so it can go full-bleed.
  *
@@ -143,7 +143,7 @@ const posterAlt =
 
 <style>
   .hero {
-    background-color: var(--color-forest-deep);
+    background-color: var(--color-teal-deep);
   }
 
   .hero-grid {
@@ -205,7 +205,7 @@ const posterAlt =
     flex-direction: column;
     justify-content: center;
     padding: clamp(32px, 4vw, 56px);
-    background-color: var(--color-forest);
+    background-color: var(--color-teal);
     /* A hairline on three sides. The top edge stays open so the cell still
        runs into the header as one block. */
     border-inline: 1px solid rgb(255 255 255 / 0.09);
@@ -262,7 +262,7 @@ const posterAlt =
 
   /* ------------------------------------------------------------- B · Video */
   .cell-video {
-    background-color: var(--color-forest-deep);
+    background-color: var(--color-teal-deep);
     aspect-ratio: 16 / 9;
   }
 
@@ -315,7 +315,7 @@ const posterAlt =
     }
 
     /* Height, not aspect-ratio: capping the height of an aspect-ratio box
-       shrinks its width too, which left a strip of forest beside the film. */
+       shrinks its width too, which left a strip of teal beside the film. */
     .cell-video {
       aspect-ratio: auto;
       height: clamp(260px, 46svh, 420px);

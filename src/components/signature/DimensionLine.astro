@@ -135,7 +135,7 @@ const rowShare = (amount: number) => Math.max((amount / largest) * 100, 6);
             <div class="flex items-baseline justify-between gap-4" aria-hidden="true">
               <span class="flex items-center gap-1.5 text-small text-ink-70">
                 {segment.included && (
-                  <Icon name="check" size={14} class="shrink-0 text-forest" />
+                  <Icon name="check" size={14} class="shrink-0 text-teal" />
                 )}
                 {segment.label}
               </span>
@@ -247,7 +247,7 @@ const rowShare = (amount: number) => Math.max((amount / largest) * 100, 6);
 <style>
   .dl-rule,
   .dl-tick {
-    stroke: var(--color-forest);
+    stroke: var(--color-teal);
     stroke-opacity: 0.4;
     stroke-width: 1;
   }
@@ -260,7 +260,7 @@ const rowShare = (amount: number) => Math.max((amount / largest) * 100, 6);
 
   .dl-rule.is-total,
   .dl-tick.is-total {
-    stroke: var(--color-forest);
+    stroke: var(--color-teal);
     stroke-opacity: 0.85;
   }
 

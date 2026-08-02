@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { formatAud, packageFromPrice } from './format';
+import type { NavFeatureKey } from './images';
 import type { NavColumn, NavLink } from './site';
 
 /**
@@ -13,6 +14,8 @@ import type { NavColumn, NavLink } from './site';
 export interface NavPromo {
   heading: string;
   body: string;
+  /** Key into `navFeature()` — the picture that sits beside the link columns. */
+  image: NavFeatureKey;
   cta: NavLink;
 }
 
@@ -107,6 +110,7 @@ export async function buildPrimaryNav(): Promise<NavItem[]> {
         promo: {
           heading: 'Not sure what fits your block?',
           body: `${designs.length} designs, ${bySeries.size} series, from ${Math.min(...designs.map((d) => d.data.frontage))}m frontage.`,
+          image: 'facade-modern',
           cta: { label: 'Find designs by frontage', href: '/home-designs/' },
         },
       },
@@ -123,6 +127,7 @@ export async function buildPrimaryNav(): Promise<NavItem[]> {
         promo: {
           heading: 'Land and build in one price.',
           body: `${rows.length} packages available, from ${formatAud(fromPrice)} complete.`,
+          image: 'estate-aerial-frames',
           cta: { label: 'View packages', href: '/house-and-land/' },
         },
       },
@@ -154,6 +159,7 @@ export async function buildPrimaryNav(): Promise<NavItem[]> {
         promo: {
           heading: 'Two levels of finish. One fixed price.',
           body: 'See exactly what separates them.',
+          image: 'kitchen-island',
           cta: { label: 'Compare', href: '/inclusions/#compare' },
         },
       },

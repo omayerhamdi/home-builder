@@ -143,13 +143,13 @@ const posterAlt =
 
 <style>
   .hero {
-    background-color: var(--color-forest);
+    background-color: var(--color-forest-deep);
   }
 
   .hero-grid {
     display: grid;
     gap: 16px;
-    max-width: var(--container-wide);
+    max-width: var(--container-content);
     margin-inline: auto;
     padding: 0 var(--spacing-gutter) var(--spacing-gutter);
   }
@@ -206,6 +206,10 @@ const posterAlt =
     justify-content: center;
     padding: clamp(32px, 4vw, 56px);
     background-color: var(--color-forest);
+    /* A hairline on three sides. The top edge stays open so the cell still
+       runs into the header as one block. */
+    border-inline: 1px solid rgb(255 255 255 / 0.09);
+    border-bottom: 1px solid rgb(255 255 255 / 0.09);
     color: var(--color-surface);
   }
 
@@ -307,6 +311,7 @@ const posterAlt =
 
     .cell-claim {
       padding: clamp(28px, 7vw, 40px) var(--spacing-gutter) clamp(32px, 8vw, 44px);
+      border: 0;
     }
 
     /* Height, not aspect-ratio: capping the height of an aspect-ratio box

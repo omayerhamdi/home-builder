@@ -27,7 +27,7 @@ const primaryNav = await buildPrimaryNav();
 <header class:list={['site-header', `tone-${tone}`]} data-header>
   <div class="header-bar">
     <div
-      class="mx-auto flex h-header max-w-wide items-center gap-4 px-gutter lg:h-header-lg"
+      class="mx-auto flex h-header max-w-content items-center gap-4 px-gutter lg:h-header-lg"
     >
       <a
         href="/"
@@ -314,7 +314,7 @@ const primaryNav = await buildPrimaryNav();
     display: grid;
     grid-template-columns: minmax(0, 1fr) 20rem;
     gap: 2.5rem;
-    max-width: var(--container-wide);
+    max-width: var(--container-content);
     margin-inline: auto;
     padding: 2.25rem var(--spacing-gutter) 2.5rem;
   }
